@@ -43,17 +43,19 @@ test('contacts : 112 en premier ; aucun numéro non officiel', () => {
   assert.ok(!JSON.stringify(P).includes('05 62 92 41 41'))
 })
 
-test('questions au gardien : coûts après échéance, repas facturés, 4e place, neige, nuit du 17', () => {
+test('questions au gardien : terrain, météo, eau et confort de nuit', () => {
   const q = P.questionsGardien.join(' ')
-  for (const mot of [/après l.échéance/i, /repas/i, /4e/i, /neige|verglas/i, /nuit du 17/i, /réseau/i]) assert.match(q, mot)
+  for (const mot of [/neige|verglas/i, /nuit du 17/i, /météo/i, /eau/i, /chauffage/i]) assert.match(q, mot)
+  assert.doesNotMatch(q, /acompte|paiement|réservation|échéance|€/i)
 })
 
-test('check-list : espèces, pas de carte bancaire, pique-niques, licence FFCAM, batterie externe', () => {
+test('check-list : repas, batterie, frontale, drap-sac, carte et chaleur', () => {
   const t = P.checklist.map(c => c.texte).join(' | ')
-  for (const mot of [/espèces/i, /pas de carte/i, /pique-nique/i, /licence/i, /batterie/i, /frontale/i, /sac à viande|drap-sac/i, /carte IGN/i]) assert.match(t, mot)
+  for (const mot of [/pique-nique/i, /batterie/i, /frontale/i, /drap-sac/i, /carte/i, /chaud/i]) assert.match(t, mot)
+  assert.doesNotMatch(t, /espèces|bancaire|licence|acompte|€/i)
 })
 
-test('calendrier de contrôle : appel lundi 9h, appel gardien jeudi, relevé frais vendredi à la maison', () => {
+test('préparation : appel gardien jeudi, relevé vendredi et descente samedi', () => {
   const c = P.calendrier.map(x => x.quand + ' ' + x.texte).join(' | ')
   assert.match(c, /Appeler le refuge/)
   assert.match(c, /jeudi|15\/10/i)

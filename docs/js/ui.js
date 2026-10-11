@@ -105,6 +105,32 @@
     return 'Mise à jour partielle : ' + items.map(function (x) { return (NOMS_PARTS[x.p] || x.p) + ' (' + x.m + ')' }).join(' ; ') + '. Le dernier relevé est conservé pour ces morceaux.'
   }
 
-  var api = { incidents: incidents, h: h, s: s, vider: vider, toast: toast, copier: copier, picto: picto, jjmm: jjmm, hhmm: hhmm, pct: pct, nombre: nombre, champ: champ }
+  var ICONS = { mountain: '⛰', route: '↗', sun: '☀', cold: '❄', snowflake: '❄', wind: '≈', water: '💧', droplets: '💧', forest: '⌂', house: '⌂', refuge: '⌂', backpack: '🎒', clock: '◷', 'clock-3': '◷', flag: '⚑', moon: '☾', bed: '☾', 'bed-double': '☾', shirt: '🧥', shoes: '🥾', footprints: '🥾', battery: '⚡', 'battery-charging': '⚡', food: '♨', utensils: '♨', phone: '☎', thermometer: '🌡', compass: '↗', check: '✓', info: 'ⓘ', 'cloud-sun': '⛅', cloud: '☁', rain: '☂', calendar: '▦', 'calendar-days': '▦', 'arrow-right': '→', scale: '⚖', heart: '♡', trash: '♻', shield: '◈', lamp: '🔦', 'first-aid': '✚' }
+  function icon(name) { return h('span', { 'class': 'icon', 'aria-hidden': 'true' }, ICONS[name] || '•') }
+  function link(url, label) { return h('a', { href: url, target: '_blank', rel: 'noopener noreferrer' }, label) }
+  function metric(label, value, note, iconName, tone) {
+    var tons = { teal: 'water', coral: 'cold', mint: 'forest' }
+    return h('article', { 'class': 'metric-card tone-' + (tons[tone] || tone || 'water') },
+      h('div', { 'class': 'metric-label' }, icon(iconName), label), h('strong', { 'class': 'metric-value' }, value),
+      note ? h('p', { 'class': 'metric-note' }, note) : null)
+  }
+  function fraicheur(ctx) {
+    var snap = ctx.etat.snap, ev = ctx.etat.ev
+    var age = snap ? Math.max(0, (ctx.etat.nowMs - Date.parse(snap.fetchedAt)) / 3600000) : null
+    var vieux = age !== null && age > 6, perime = age !== null && age > 12
+    var texte = snap ? 'Relevé du ' + jjmm(snap.fetchedLocal) + ' à ' + hhmm(snap.fetchedLocal) + ' · heure de Paris' : 'Pas encore de prévisions enregistrées'
+    var note = !snap ? 'Actualiser avec du réseau pour obtenir la météo.' : !ctx.enLigne ? 'Hors ligne : les dernières prévisions enregistrées restent affichées.' :
+      snap.erreurs && snap.erreurs.length ? 'Mise à jour incomplète : certaines prévisions précédentes sont conservées.' :
+      perime ? 'Prévisions anciennes : actualiser avant de préparer le départ.' : vieux ? 'Le relevé a plus de 6 heures : une nouvelle lecture est utile.' : 'Les modèles donnent une tendance, pas une mesure sur place.'
+    return h('div', { 'class': 'freshness' + (vieux ? ' freshness-old' : ''), role: 'status' },
+      h('div', null, h('p', null, icon('clock'), h('strong', null, texte)), h('p', { 'class': 'source-note' }, note)),
+      h('button', { 'class': 'btn btn-small btn-secondary', type: 'button', disabled: !ctx.enLigne || !!ctx.rafraichissement, onclick: function () { ctx.rafraichir() } }, ctx.rafraichissement ? 'Actualisation…' : 'Actualiser'))
+  }
+  function photo(photographie, caption) {
+    if (!photographie) return null
+    return h('figure', { 'class': 'photo-card' }, h('img', { src: photographie.src, alt: photographie.alt, loading: 'lazy', decoding: 'async' }),
+      caption ? h('figcaption', null, caption) : null)
+  }
+  var api = { incidents: incidents, h: h, s: s, vider: vider, toast: toast, copier: copier, picto: picto, jjmm: jjmm, hhmm: hhmm, pct: pct, nombre: nombre, champ: champ, icon: icon, metric: metric, link: link, fraicheur: fraicheur, photo: photo }
   root.RGN_UI = api
 })(self)

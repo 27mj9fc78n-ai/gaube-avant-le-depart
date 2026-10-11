@@ -7,10 +7,10 @@ import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
 
 const racine = join(dirname(fileURLToPath(import.meta.url)), '..')
-const SUITES = ['tests/reservation.test.mjs', 'tests/decision.test.mjs', 'tests/relecture.test.mjs', 'tests/normaliser.test.mjs', 'tests/share.test.mjs']
+const SUITES = ['tests/decision.test.mjs', 'tests/relecture.test.mjs', 'tests/normaliser.test.mjs', 'tests/weather-view.test.mjs']
 
 for (const tz of ['Indian/Reunion', 'America/New_York', 'Pacific/Auckland', 'UTC']) {
-  test(`fuseau ${tz} : échéance, fenêtres horaires, signal et textes identiques`, () => {
+  test(`fuseau ${tz} : fenêtres horaires, signal et résumés météo identiques`, () => {
     const r = spawnSync(process.execPath, ['--test', ...SUITES], { cwd: racine, env: { ...process.env, TZ: tz }, encoding: 'utf8' })
     assert.equal(r.status, 0, `échec sous TZ=${tz} :\n${(r.stdout || '').split('\n').filter(l => /✖|not ok/.test(l)).slice(0, 8).join('\n')}`)
   })

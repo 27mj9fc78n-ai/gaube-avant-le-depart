@@ -1,6 +1,6 @@
 // Empreinte des fichiers servis « cache d'abord » (css, js, icônes, manifeste).
 // Si elle change sans changement de version.js, les téléphones garderaient l'ancienne appli en cache.
-import { readFileSync, readdirSync, statSync } from 'node:fs'
+import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs'
 import { createHash } from 'node:crypto'
 import { join, relative, extname } from 'node:path'
 
@@ -17,7 +17,7 @@ function lister(dossier, base, sortie) {
 
 export function empreinte(racineDocs) {
   const fichiers = []
-  for (const d of ['css', 'js', 'icons']) lister(join(racineDocs, d), racineDocs, fichiers)
+  for (const d of ['css', 'js', 'icons', 'images']) if (existsSync(join(racineDocs, d))) lister(join(racineDocs, d), racineDocs, fichiers)
   fichiers.push('manifest.webmanifest')
   fichiers.sort()
   const h = createHash('sha256')

@@ -4,12 +4,13 @@
 (function (root) {
   'use strict'
   const U = root.RGN_UI
-  const { toast, copier } = U
-  const M = root.RGN_METEO, DC = root.RGN_DECISION, SH = root.RGN_SHARE, RS = root.RGN_RESA, PLAN = root.RGN_PLAN
+  const { toast } = U
+  const M = root.RGN_METEO, DC = root.RGN_DECISION, PLAN = root.RGN_PLAN
 
   function stockageSur() { try { return root.localStorage } catch (e) { return undefined } }
   const store = root.RGN_STORE.creer(stockageSur())
-  const utilisateur = store.get('user.v1', {})
+  const sauvegarde = store.get('user.v1', {})
+  const utilisateur = sauvegarde && typeof sauvegarde === 'object' && !Array.isArray(sauvegarde) ? sauvegarde : {}
   const prefs = {
     get: (k, d) => (Object.prototype.hasOwnProperty.call(utilisateur, k) ? utilisateur[k] : d),
     set: (k, v) => { utilisateur[k] = v; store.set('user.v1', utilisateur) }
@@ -45,8 +46,9 @@
     etat.nowMs = Date.now()
     etat.nowIso = new Date(etat.nowMs).toISOString()
     if (!etat.snap) { etat.ev = null; etat.table = []; return }
-    const dep = DC.JOUR_VEN + 'T' + pad(prefs.get('depart', 11)) + ':00'
-    const dur = prefs.get('dureeH', 5)
+    const heure = Number(prefs.get('depart', 11)), duree = Number(prefs.get('dureeH', 5))
+    const dep = DC.JOUR_VEN + 'T' + pad([8, 9, 10, 11, 12].includes(heure) ? heure : 11) + ':00'
+    const dur = [4, 5, 6].includes(duree) ? duree : 5
     etat.ev = DC.evaluer(etat.snap, { depart: dep, dureeH: dur, maintenant: etat.nowIso })
     etat.table = DC.tableauDeparts(etat.snap, { maintenant: etat.nowIso }, [8, 9, 10, 11, 12], [4, 5, 6])
   }
@@ -54,20 +56,12 @@
   const ctx = {
     etat, prefs, store, plan: PLAN, toast,
     get enLigne() { return enLigne },
+    get rafraichissement() { return rafraichissementEnCours },
     get etatStockage() { return etatStockage },
     rerender: focusId => { calculer(); rendre(focusId) },
     recalculer: focusId => { calculer(); rendre(focusId) },
     rafraichir: () => rafraichir(false),
-    copierPoint: () => {
-      if (!etat.ev || !etat.snap) { toast('Aucun relevé à copier'); return }
-      const texte = SH.texteWhatsApp(etat.ev, etat.snap, { table: etat.table, dureeH: prefs.get('dureeH', 5), trajetMin: prefs.get('trajetMin', 180), maintenantMs: etat.nowMs, plan: PLAN, resa: RS.etatReservation(prefs.get) })
-      copier(texte)
-    },
-    demanderPersistance: () => {
-      if (navigator.storage && navigator.storage.persist) {
-        navigator.storage.persist().then(ok => { etatStockage.persistant = ok; toast(ok ? 'Stockage persistant accordé' : 'Safari n’a pas accordé le stockage persistant : garder une capture et la fiche copiée'); rendre() })
-      } else toast('Non disponible sur ce navigateur')
-    }
+    naviguer: id => choisirOnglet(id, false)
   }
 
   function majEntete() {
@@ -76,7 +70,7 @@
     const a = document.getElementById('avert-heure')
     if (a) a.textContent = etat.snap ? U.jjmm(etat.snap.fetchedLocal) + ' à ' + U.hhmm(etat.snap.fetchedLocal) : 'aucun relevé'
     const v = document.getElementById('pied-version')
-    if (v && root.RGN_VERSION) v.textContent = 'Version ' + root.RGN_VERSION.app + ' · faits du refuge vérifiés le ' + root.RGN_VERSION.contenu.slice(8, 10) + '/' + root.RGN_VERSION.contenu.slice(5, 7)
+    if (v && root.RGN_VERSION) v.textContent = 'Informations du refuge consultées le ' + root.RGN_VERSION.contenu.slice(8, 10) + '/' + root.RGN_VERSION.contenu.slice(5, 7) + '/2026. Les conditions du jour restent à confirmer auprès du gardien.'
   }
 
   // Une saisie est en cours si le focus est sur un champ de l'onglet affiché : le reconstruire effacerait le texte tapé.
@@ -87,8 +81,6 @@
   }
   function majCompteEtEntete() {
     majEntete()
-    const c = document.getElementById('compte')
-    if (c) { const r = RS.compteARebours(Date.now()); c.textContent = r.texte; c.classList.toggle('depasse', r.depasse) }
   }
   // Rendu déclenché par un événement de fond (retour dans l'appli, fin de rafraîchissement, réseau) : jamais pendant une saisie.
   function rendreSiPossible() {
@@ -104,9 +96,10 @@
     const ouverts = {}
     racine.querySelectorAll('details').forEach(d => { const s = d.querySelector('summary'); if (s) ouverts[s.textContent] = d.open })
     try { o.rendre(racine, ctx); racine.querySelectorAll('details').forEach(d => { const s = d.querySelector('summary'); if (s && Object.prototype.hasOwnProperty.call(ouverts, s.textContent)) d.open = ouverts[s.textContent] }) } catch (e) {
+      if (root.console) root.console.error(e)
       U.vider(racine)
       racine.appendChild(U.h('section', { 'class': 'bloc' }, U.h('h2', null, 'Affichage impossible'),
-        U.h('p', null, 'Une erreur est survenue : ' + (e && e.message ? e.message : e) + '. Recharger la page ; la fiche du refuge et la check-list restent dans l’onglet Refuge.')))
+        U.h('p', null, 'Cette section n’a pas pu s’afficher. Recharger la page puis réessayer.')))
     }
     majEntete()
     if (focusId) { const el = document.getElementById(focusId); if (el) el.focus({ preventScroll: true }) }
@@ -162,6 +155,7 @@
     }
     store.set('dernierEssai', maintenant)
     rafraichissementEnCours = true
+    rendreSiPossible()
     if (!silencieux) toast('Rafraîchissement…')
     return M.actualiser(root.fetch.bind(root), etat.snap, new Date(maintenant).toISOString(), { timeoutMs: 10000 }).then(snap => {
       etat.snap = snap
@@ -169,7 +163,7 @@
       if (!snap.erreurs.length) store.set('dernierRafraichissement', maintenant)   // un échec ne bloque pas le prochain essai
       calculer()
       if (!snap.erreurs.length) enregistrerHistorique()     // pas d'entrée d'historique pour un essai raté
-      if (!silencieux) toast(snap.erreurs.length ? U.incidents(snap.erreurs) : 'Relevé à jour')
+      if (!silencieux) toast(snap.erreurs.length ? 'Mise à jour incomplète : les dernières prévisions disponibles sont conservées' : 'Prévisions actualisées')
     }).catch(() => { if (!silencieux) toast('Rafraîchissement impossible') }).then(() => { rafraichissementEnCours = false; rendreSiPossible() })
   }
 
@@ -226,16 +220,23 @@
   }
 
   function minuteur() {
-    setInterval(() => {
-      if (document.hidden) return
-      const c = document.getElementById('compte')
-      if (c) { const r = RS.compteARebours(Date.now()); c.textContent = r.texte; c.classList.toggle('depasse', r.depasse) }
-    }, 20000)
     setInterval(() => { if (!document.hidden) rendreSiPossible() }, 5 * 60000)
+  }
+
+  function initPhotos() {
+    const photos = root.RGN_PHOTOS
+    if (!photos) return
+    const hero = document.getElementById('hero-photo')
+    if (photos.lac) { hero.src = photos.lac.src; hero.alt = photos.lac.alt }
+    const corps = document.getElementById('photo-credits')
+    ;[photos.lac, photos.refuge].filter(Boolean).forEach(p => corps.appendChild(U.h('p', null,
+      U.link(p.source, p.alt + ' — ' + p.author), ' · ' + p.date + ' · ', U.link(p.licenseUrl, p.license), '. Photo recadrée.')))
+    corps.appendChild(U.h('p', null, 'Photos d’illustration : elles ne montrent pas les conditions météo ni l’état du sentier aujourd’hui.'))
   }
 
   function demarrer() {
     etat.snap = chargerSnapshot()
+    initPhotos()
     // Sonde d'écriture : le stockage local fonctionne-t-il vraiment (mode privé, quota) ? Et la protection contre l'effacement ?
     etatStockage.ecriture = store.set('sonde', 1); store.remove('sonde')
     if (navigator.storage && navigator.storage.persisted) navigator.storage.persisted().then(v => { etatStockage.persistant = !!v; if (actif === 'sac') rendreSiPossible() }).catch(() => {})
@@ -247,6 +248,7 @@
     minuteur()
     majEntete()
     document.getElementById('lien-appel-gardien').setAttribute('href', 'tel:' + PLAN.refuge.tel)
+    document.querySelector('.brand').addEventListener('click', e => { e.preventDefault(); choisirOnglet('decision', false) })
     if (enLigne) rafraichir(true)
   }
 

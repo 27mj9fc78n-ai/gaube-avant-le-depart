@@ -1,82 +1,108 @@
-/* Rando Perfecto : onglet Refuge (faits sourcés, plan B, questions au gardien) et feuille Secours. */
+/* Échappée : préparer une nuit au refuge, avec les informations utiles et leurs sources. */
 (function (root) {
   'use strict'
-  const { h, copier, jjmm } = root.RGN_UI
+  const U = root.RGN_UI
+  const { h } = U
+  const FFCAM = 'https://refugeoulettesdegaube.ffcam.fr/'
+  const QUESTIONS = [
+    'Le refuge est-il bien gardé pour notre nuit du 16 au 17 octobre ?',
+    'Y a-t-il de la neige, du verglas ou des difficultés sur le sentier et les passerelles ?',
+    'Quel est votre avis sur la météo, l’heure de départ et un éventuel demi-tour ?',
+    'Peut-on remplir les gourdes ? Qu’en est-il du chauffage, des sanitaires et des couvertures après les travaux ?'
+  ]
 
-  const RUBRIQUES = [['refuge', 'Le refuge'], ['reservation', 'Réservation et paiement'], ['itineraire', 'Itinéraire et soleil'], ['acces', 'Accès et parking'],
-    ['parc', 'Parc national'], ['meteo', 'Météo'], ['securite', 'Sécurité'], ['plan-b', 'Plan B'], ['donnees', 'Cartes et données']]
-  const FIAB = { verifie: 'vérifié', probable: 'probable', incertain: 'incertain' }
-
-  function fait(f) {
-    return h('details', null,
-      h('summary', null, f.titre),
-      h('p', null, f.texte),
-      h('p', { 'class': 'fiab' + (f.fiabilite === 'incertain' ? ' incertain' : '') },
-        'Fiabilité : ' + FIAB[f.fiabilite] + ' · vérifié le ' + f.verifie_le.slice(8, 10) + '/' + f.verifie_le.slice(5, 7) + ' · ',
-        h('a', { href: f.source, target: '_blank', rel: 'noopener noreferrer' }, 'source')))
+  function lien(url, texte, classe) {
+    return h('a', { href: url, target: '_blank', rel: 'noopener noreferrer', 'class': classe || '' }, texte)
   }
 
-  function formatDate(iso) { return iso.slice(8, 10) + '/' + iso.slice(5, 7) }
+  function carte(titre, texte, nomIcone, ton) {
+    return h('article', { 'class': 'info-card tone-' + ton },
+      U.icon ? U.icon(nomIcone) : null,
+      h('h3', null, titre), h('p', null, texte))
+  }
+
+  function photoRefuge(photo) {
+    if (!photo) return null
+    return h('figure', { 'class': 'photo-card refuge-photo' },
+      h('img', { src: photo.src, alt: photo.alt, width: 1600, height: 1200, loading: 'lazy', decoding: 'async' }),
+      h('figcaption', { 'class': 'photo-credit' },
+        'Photo : ', lien(photo.source, photo.author + ' · ' + photo.date), ' · ', lien(photo.licenseUrl, photo.license),
+        '. Redimensionnée et convertie en WebP. ',
+        h('span', null, 'Vue de 2011, avant la rénovation de 2026.')))
+  }
 
   function renderRefuge(racine, ctx) {
-    root.RGN_UI.vider(racine)
-    const plan = ctx.plan, r = plan.refuge
-    racine.appendChild(h('section', { 'class': 'bloc', 'aria-labelledby': 'h-r1' },
-      h('h2', { id: 'h-r1' }, r.nom),
-      h('p', null, 'Altitude 2 151 m · départ : ' + r.depart + '.'),
+    U.vider(racine)
+    const r = ctx.plan.refuge
+    const photos = root.RGN_PHOTOS || {}
+    racine.appendChild(h('section', { 'class': 'section-intro', 'aria-labelledby': 'h-refuge' },
+      h('p', { 'class': 'eyebrow' }, 'Une nuit là-haut'),
+      h('h2', { id: 'h-refuge' }, 'Le refuge des Oulettes'),
+      h('p', null, 'À 2 151 m, face au Vignemale : les repères pour arriver sereinement et profiter de la soirée.')))
+
+    racine.appendChild(h('section', { 'class': 'refuge-grid', 'aria-label': 'Le refuge en un regard' },
+      photoRefuge(photos.refuge),
+      h('div', { 'class': 'refuge-recap' },
+        h('p', { 'class': 'eyebrow' }, 'Les bons repères'),
+        h('h3', null, 'Une arrivée avant 18 h'),
+        h('p', null, 'On pose les sacs, on se change et on garde du temps pour souffler avant le dîner.'),
+        h('div', { 'class': 'metric-grid' },
+          U.metric('Altitude', '2 151 m', 'Refuge FFCAM', 'mountain', 'teal'),
+          U.metric('Arrivée', 'Avant 18 h', 'Dîner à 19 h', 'clock', 'sun'),
+          U.metric('La nuit', '5 dortoirs', '95 couchages annoncés', 'bed', 'coral'),
+          U.metric('Gardé', 'Jusqu’au 17/10', 'Nuit du 16 à reconfirmer', 'calendar', 'mint')),
+        h('p', { 'class': 'source-note' }, 'Informations du site officiel consultées le 11/10/2026. ', lien(FFCAM, 'Voir le refuge')))))
+
+    racine.appendChild(h('section', { 'class': 'bloc', 'aria-labelledby': 'h-refuge-vie' },
+      h('p', { 'class': 'eyebrow' }, 'Les petits rappels utiles'),
+      h('h2', { id: 'h-refuge-vie' }, 'Pour être bien au refuge'),
+      h('div', { 'class': 'info-grid' },
+        carte('Dîner à 19 h', 'Arriver avant 18 h. Prévenir les gardiennes en cas de retard et signaler les besoins alimentaires en amont.', 'clock', 'sun'),
+        carte('Le drap-sac dans le sac', 'Apporter son drap-sac et sa frontale. Des Crocs sont annoncées à l’entrée : inutile d’ajouter une grosse paire de chaussures.', 'bed', 'coral'),
+        carte('L’eau et l’énergie sont précieuses', 'Charger téléphone et montre avant le départ. La quantité d’eau et l’électricité peuvent être limitées : demander où remplir les gourdes.', 'water', 'teal'),
+        carte('Une couche chaude pour la soirée', 'La température intérieure et le chauffage après rénovation ne sont pas confirmés. Garder des vêtements secs et chauds pour la soirée.', 'thermometer', 'mint'),
+        carte('Une soirée à partager', 'Salle commune, livres, jeux et terrasse face au Vignemale. Frontale discrète la nuit, respect du sommeil et déchets à redescendre.', 'heart', 'coral'),
+        carte('La fin de saison approche', 'Gardiennage annoncé du 25 juillet au 17 octobre 2026. Reconfirmer l’accueil pour votre nuit et l’état du sentier juste avant la sortie.', 'calendar', 'sun')),
+      h('p', { 'class': 'source-note' }, lien(FFCAM + 'en-ete.html', 'Conseils officiels pour la nuit au refuge'), ' · ', lien(FFCAM, 'Équipements et période de gardiennage'))))
+
+    racine.appendChild(h('section', { 'class': 'bloc tone-mint', 'aria-labelledby': 'h-refuge-appel' },
+      h('p', { 'class': 'eyebrow' }, 'Le terrain, raconté par celles qui y sont'),
+      h('h2', { id: 'h-refuge-appel' }, 'Un petit appel avant de partir'),
+      h('p', null, 'Les modèles ne voient pas une dalle gelée ou une passerelle abîmée. Les gardiennes peuvent compléter la météo avec ce qui se passe sur place.'),
+      h('ol', { 'class': 'questions-list' }, QUESTIONS.map(q => h('li', null, q))),
       h('div', { 'class': 'actions' },
-        h('a', { 'class': 'btn', href: 'tel:' + r.tel }, 'Appeler le gardien ' + r.telAffiche),
-        h('a', { 'class': 'btn btn-secondaire', href: r.site, target: '_blank', rel: 'noopener noreferrer' }, 'Site du refuge')),
-      h('p', { 'class': 'discret' }, 'Une seule personne appelle, puis consigne les réponses : dans « À demander au gardien » ci-dessous, avec la date et l’heure.')))
+        h('a', { 'class': 'btn', href: 'tel:' + r.tel }, U.icon ? U.icon('phone') : null, 'Appeler le refuge'),
+        lien(r.site, 'Le site du refuge', 'btn btn-secondary')),
+      h('p', { 'class': 'source-note' }, r.telAffiche),
+      h('details', { 'class': 'refuge-notes' },
+        h('summary', null, 'Noter les infos du dernier appel'),
+        U.champ('Date, heure et réponses des gardiennes',
+          h('textarea', { id: 'f-notes-gardien', rows: 4, placeholder: 'Par exemple : jeudi 17 h, pas de neige jusqu’au refuge…', onchange: e => {
+            ctx.prefs.set('notesGardien', e.target.value)
+            ctx.toast('Notes enregistrées sur cet appareil')
+          } }, ctx.prefs.get('notesGardien', '')),
+          'Ces notes restent sur votre appareil.'))))
 
-    racine.appendChild(h('section', { 'class': 'bloc', 'aria-labelledby': 'h-r2' },
-      h('h2', { id: 'h-r2' }, 'Durées et soleil'),
-      h('div', { 'class': 'defil', tabindex: '0', role: 'region', 'aria-label': 'Durées de marche (tableau défilant)' }, h('table', null,
-        h('thead', null, h('tr', null, h('th', null, 'Étape'), h('th', { 'class': 'num' }, 'Durée'))),
-        h('tbody', null,
-          h('tr', null, h('th', { scope: 'row' }, 'Parking, lac de Gaube'), h('td', { 'class': 'num' }, '1 h à 1 h 30')),
-          h('tr', null, h('th', { scope: 'row' }, 'Montée au refuge, sans neige (refuge)'), h('td', { 'class': 'num' }, '3 h')),
-          h('tr', null, h('th', { scope: 'row' }, 'Montée avec neige (refuge)'), h('td', { 'class': 'num' }, '4 h')),
-          h('tr', null, h('th', { scope: 'row' }, 'Avec sacs de nuit, groupe lent (estimation)'), h('td', { 'class': 'num' }, '3 h 30 à 4 h 30')),
-          h('tr', null, h('th', { scope: 'row' }, 'Descente'), h('td', { 'class': 'num' }, '2 h 30'))))),
-      h('p', null, 'Vendredi : lever ' + plan.soleil.vendredi.lever + ', coucher ' + plan.soleil.vendredi.coucher + ', nuit civile ' + plan.soleil.vendredi.nuitCivile + '. Samedi : lever ' + plan.soleil.samedi.lever + ', coucher ' + plan.soleil.samedi.coucher + '.'),
-      h('p', { 'class': 'aide' }, 'Horizon plat : le relief du cirque raccourcit le jour réel. Dîner à 19 h, arriver avant 18 h.')))
-
-    const s3 = h('section', { 'class': 'bloc', 'aria-labelledby': 'h-r3' }, h('h2', { id: 'h-r3' }, 'Faits sourcés'),
-      h('p', { 'class': 'discret' }, 'Chaque fait porte sa source et sa date de vérification. À corriger après chaque appel au gardien.'))
-    RUBRIQUES.forEach(([cle, titre]) => {
-      const liste = plan.faits.filter(f => f.categorie === cle)
-      if (!liste.length) return
-      s3.appendChild(h('h3', { 'class': 'rubrique' }, titre))
-      liste.forEach(f => s3.appendChild(fait(f)))
-    })
-    racine.appendChild(s3)
-
-    const notes = ctx.prefs.get('notesGardien', '')
-    racine.appendChild(h('section', { 'class': 'bloc', 'aria-labelledby': 'h-r4' },
-      h('h2', { id: 'h-r4' }, 'À demander au gardien'),
-      h('ol', null, plan.questionsGardien.map(q => h('li', null, q))),
-      root.RGN_UI.champ('Réponses du gardien (date, heure, ce qui a été dit)',
-        h('textarea', { id: 'f-notes-gardien', onchange: e => { ctx.prefs.set('notesGardien', e.target.value); ctx.toast('Enregistré sur cet appareil') } }, notes),
-        'Reste sur cet appareil. Penser à reporter les faits confirmés dans l’appli publiée.'),
-      h('div', { 'class': 'actions' }, h('button', { 'class': 'btn btn-secondaire', type: 'button', onclick: () => copier('Questions pour le gardien du refuge des Oulettes de Gaube :\n' + plan.questionsGardien.map((q, i) => (i + 1) + '. ' + q).join('\n')) }, 'Copier les questions'))))
-
-    racine.appendChild(h('section', { 'class': 'bloc', 'aria-labelledby': 'h-r5' },
-      h('h2', { id: 'h-r5' }, 'Liens utiles'),
-      h('ul', null, plan.liens.map(l => h('li', null, h('a', { href: l.url, target: '_blank', rel: 'noopener noreferrer' }, l.libelle))))))
+    racine.appendChild(h('p', { 'class': 'note source-note' },
+      'Le refuge est annoncé rénové en 2026. La photo montre le lieu avant les travaux ; elle ne permet pas de vérifier les équipements actuels. ',
+      lien(FFCAM, 'Consulter les nouvelles du refuge')))
   }
 
   function renderSecours(corps, ctx) {
-    root.RGN_UI.vider(corps)
-    const plan = ctx.plan
+    U.vider(corps)
+    const r = ctx.plan.refuge
     corps.appendChild(h('a', { 'class': 'gros', href: 'tel:112' }, 'Appeler le 112'))
-    corps.appendChild(h('p', null, '112 fonctionne sur tout réseau disponible. Si la voix ne passe pas, un SMS au 114 est un recours.'))
-    corps.appendChild(h('p', null, h('strong', null, 'À dicter : '), 'votre position réelle. Ouvrir Boussole ou Plans sur le téléphone et lire les coordonnées GPS. Sans GPS, donner le dernier repère passé : parking du Puntas, lac de Gaube, cabane du Pinet, cascade d’Esplumouse, plateau des petites Oulettes. Zone : Cauterets, Hautes-Pyrénées.'))
-    corps.appendChild(h('p', { 'class': 'discret' }, 'Repère fixe, valable seulement si vous êtes au refuge ou à ses abords : refuge des Oulettes de Gaube, ' + plan.refuge.lat + ' nord, ' + Math.abs(plan.refuge.lon) + ' ouest, altitude ' + plan.refuge.altitude + ' mètres.'))
-    corps.appendChild(h('ul', null, plan.contacts.slice(1).map(c => h('li', null, c.nom + ' : ', h('a', { href: 'tel:' + c.numero }, c.affiche || c.numero)))))
-    corps.appendChild(h('p', null, h('strong', null, 'Orage : '), 'au premier coup de tonnerre, s’éloigner des crêtes et des cols, mais aussi du lac, des cours d’eau, des arbres isolés et des surplombs ; ne pas se regrouper ; poser les bâtons à terre. Ce n’est pas une consigne officielle : suivre les secours. Pas de couverture réseau garantie sur le sentier ni au refuge.'))
+    corps.appendChild(h('p', null, 'Numéro d’urgence européen, gratuit. Un réseau mobile accessible est nécessaire : la couverture n’est jamais garantie dans cette vallée.'))
+    corps.appendChild(h('ol', null,
+      h('li', null, h('strong', null, 'Indiquer votre position réelle. '), 'Lire les coordonnées GPS de votre téléphone ou donner le dernier repère passé : parking du Puntas, lac de Gaube, cabane du Pinet, cascade d’Esplumouse, petites Oulettes. Secteur : Cauterets, Hautes-Pyrénées.'),
+      h('li', null, h('strong', null, 'Décrire la situation. '), 'Ce qui s’est passé, le nombre de personnes concernées et les conditions sur place.'),
+      h('li', null, h('strong', null, 'Suivre les secours. '), 'Rester joignable et suivre les consignes de l’opérateur.')))
+    corps.appendChild(h('p', { 'class': 'note' }, 'Repère seulement si vous êtes au refuge : ' + r.nom + ', ' + r.lat + '° N, ' + Math.abs(r.lon) + '° O, ' + r.altitude + ' m.'))
+    corps.appendChild(h('p', null, 'Le 114 est adapté aux personnes sourdes, malentendantes, sourdaveugles ou aphasiques. Un SMS n’est pas une solution garantie en cas d’absence de réseau.'))
+    corps.appendChild(h('p', { 'class': 'source-note' }, lien('https://www.service-public.fr/particuliers/vosdroits/F33953', 'Informations officielles : 112 et 114')))
+    corps.appendChild(h('p', null, 'Refuge : ', h('a', { href: 'tel:' + r.tel }, r.telAffiche)))
   }
 
-  root.RGN_UI.renderRefuge = renderRefuge
-  root.RGN_UI.renderSecours = renderSecours
+  U.renderRefuge = renderRefuge
+  U.renderSecours = renderSecours
 })(self)

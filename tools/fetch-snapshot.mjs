@@ -1,41 +1,27 @@
-// Relevé météo live -> texte WhatsApp (--texte) et/ou snapshot embarqué (--ecrire).
-// Usage : node tools/fetch-snapshot.mjs [--texte] [--ecrire] [--duree=5] [--trajet=180] [--depart=11]
-// Écrit uniquement docs/data/snapshot.js, et seulement avec --ecrire.
-import { writeFileSync } from 'node:fs'
+// Actualise le relevé embarqué, en conservant les morceaux précédents si une API échoue.
+// Usage : node tools/fetch-snapshot.mjs [--ecrire] [--texte] [--duree=5] [--depart=11]
+import { writeFileSync, readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
+import { runInNewContext } from 'node:vm'
 import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
-
 const require = createRequire(import.meta.url)
-const here = dirname(fileURLToPath(import.meta.url))
-const M = require('../docs/js/meteo.js')
-const D = require('../docs/js/decision.js')
-const SH = require('../docs/js/share.js')
-const P = require('../docs/data/plan.js')
-
-const arg = (nom, defaut) => {
-  const a = process.argv.find(x => x.startsWith(`--${nom}=`))
-  return a ? a.split('=')[1] : defaut
-}
-const duree = Number(arg('duree', 5))
-const trajet = Number(arg('trajet', 180))
-const depart = Number(arg('depart', 11))
-
-const maintenantMs = Date.now()
-const maintenant = new Date(maintenantMs).toISOString()
-const snap = await M.actualiser(fetch, null, maintenant, { timeoutMs: 15000 })
-if (snap.erreurs.length) console.error('Avertissements :\n - ' + snap.erreurs.join('\n - '))
-
-const dep = `2026-10-16T${String(depart).padStart(2, '0')}:00`
-const ev = D.evaluer(snap, { depart: dep, dureeH: duree, maintenant })
-const table = D.tableauDeparts(snap, { maintenant }, [8, 9, 10, 11, 12], [4, 5, 6])
-
+const M = require('../docs/js/meteo.js'), D = require('../docs/js/decision.js'), W = require('../docs/js/weather-view.js')
+const here = dirname(fileURLToPath(import.meta.url)), fichier = join(here, '..', 'docs', 'data', 'snapshot.js')
+const argument = (nom, defaut) => { const a = process.argv.find(x => x.startsWith(`--${nom}=`)); return a ? Number(a.split('=')[1]) : defaut }
+const duree = argument('duree', 5), depart = argument('depart', 11)
+if (![4, 5, 6].includes(duree) || ![8, 9, 10, 11, 12].includes(depart)) throw new Error('Départ 8–12 h, durée 4–6 h')
+const boite = { self: {} }
+runInNewContext(readFileSync(fichier, 'utf8'), boite)
+const maintenant = new Date().toISOString()
+const snap = await M.actualiser(fetch, boite.self.RGN_SNAPSHOT, maintenant, { timeoutMs: 15000 })
+if (snap.erreurs.length) console.error('Actualisation incomplète : ' + snap.erreurs.join(' ; '))
 if (process.argv.includes('--ecrire')) {
-  const f = join(here, '..', 'docs', 'data', 'snapshot.js')
-  writeFileSync(f, `/* Relevé embarqué (généré par tools/fetch-snapshot.mjs) : sert au premier lancement sans réseau. */\nself.RGN_SNAPSHOT = ${JSON.stringify(snap)};\n`)
-  console.error(`Snapshot écrit : ${f} (${JSON.stringify(snap).length} octets)`)
+  writeFileSync(fichier, `/* Relevé embarqué : dernière donnée disponible ; chaque morceau conserve sa propre date. */\nself.RGN_SNAPSHOT = ${JSON.stringify(snap)};\n`)
+  console.error('Relevé enregistré : ' + snap.fetchedLocal + ', Paris. ' + snap.erreurs.length + ' incident(s).')
 }
-
 if (process.argv.includes('--texte') || !process.argv.includes('--ecrire')) {
-  console.log(SH.texteWhatsApp(ev, snap, { table, dureeH: duree, trajetMin: trajet, maintenantMs, plan: P }))
+  const ev = D.evaluer(snap, { depart: `2026-10-16T${String(depart).padStart(2, '0')}:00`, dureeH: duree, maintenant })
+  const r = W.resume(snap, ...ev.fenetres.vendredi)
+  console.log(JSON.stringify({ releve: snap.fetchedLocal, signal: ev.libelleSignal, confiance: ev.confiance, arrivee: ev.fenetres.arrivee, vendredi: r }, null, 2))
 }
