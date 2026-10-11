@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#EFF2EE" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0F1A20" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Gaube">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>Gaube, avant le départ</title>
+<meta name="description" content="Aide à la décision pour une sortie au refuge des Oulettes de Gaube : météo à 2 151 m, échéance d'annulation, fiche refuge et check-list. Fonctionne hors ligne.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<a class="evitement" href="#contenu">Aller au contenu</a>
+
+<header class="haut" role="banner">
+  <h1 class="titre">Gaube, 16–17 oct</h1>
+  <span id="pastille-reseau" class="pastille" role="status" aria-live="polite">En ligne</span>
+  <button id="btn-secours" class="btn btn-secours" type="button" aria-haspopup="dialog">Secours</button>
+</header>
+
+<aside id="avertissement" class="avertissement" aria-label="Avertissement">
+  <p><strong>Aide à la décision, pas un bulletin de sécurité.</strong>
+  Modèles à 9–25 km pour 2 151 m, relevé de <span id="avert-heure">…</span> (heure de Paris).
+  Ne remplace ni la Vigilance et le bulletin montagne Météo-France, ni l’avis du gardien.
+  Absence de signal ne veut pas dire absence de danger.</p>
+  <p class="avert-liens">
+    <a href="https://vigilance.meteofrance.fr" target="_blank" rel="noopener noreferrer">Vigilance</a>
+    <a href="https://meteofrance.com/meteo-montagne/pyrenees" target="_blank" rel="noopener noreferrer">Météo montagne</a>
+    <a id="lien-appel-gardien" href="tel:+33988184146">Appeler le gardien</a>
+  </p>
+</aside>
+
+<div id="bandeau-maj" class="bandeau-maj" role="status" aria-live="polite" hidden>
+  <span id="bandeau-maj-texte">Nouvelle version disponible.</span>
+  <button id="btn-maj" class="btn btn-petit" type="button">Recharger</button>
+</div>
+
+<main id="contenu" tabindex="-1">
+  <section id="onglet-decision" class="onglet" role="tabpanel" aria-labelledby="tab-decision"></section>
+  <section id="onglet-meteo" class="onglet" role="tabpanel" aria-labelledby="tab-meteo" hidden></section>
+  <section id="onglet-refuge" class="onglet" role="tabpanel" aria-labelledby="tab-refuge" hidden></section>
+  <section id="onglet-sac" class="onglet" role="tabpanel" aria-labelledby="tab-sac" hidden></section>
+  <footer class="pied">
+    <p>Météo : <a href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer">Weather data by Open-Meteo.com</a> (CC BY 4.0). Open-Meteo voit l’adresse IP de chaque appareil qui rafraîchit.</p>
+    <p>Seuils et règles : conventions du groupe, <strong>non calibrées</strong>. Ce n’est pas une consigne de sécurité.</p>
+    <p id="pied-version" class="discret"></p>
+  </footer>
+</main>
+
+<nav aria-label="Sections">
+<div class="onglets" role="tablist" aria-label="Sections">
+  <button id="tab-decision" class="onglet-btn" role="tab" aria-selected="true" aria-controls="onglet-decision" type="button"><span class="onglet-pict" aria-hidden="true">◐</span>Décision</button>
+  <button id="tab-meteo" class="onglet-btn" role="tab" aria-selected="false" aria-controls="onglet-meteo" tabindex="-1" type="button"><span class="onglet-pict" aria-hidden="true">≈</span>Météo</button>
+  <button id="tab-refuge" class="onglet-btn" role="tab" aria-selected="false" aria-controls="onglet-refuge" tabindex="-1" type="button"><span class="onglet-pict" aria-hidden="true">⌂</span>Refuge</button>
+  <button id="tab-sac" class="onglet-btn" role="tab" aria-selected="false" aria-controls="onglet-sac" tabindex="-1" type="button"><span class="onglet-pict" aria-hidden="true">▤</span>Sac</button>
+</div>
+</nav>
+
+<dialog id="dlg-secours" class="dlg" aria-labelledby="dlg-secours-titre">
+  <h2 id="dlg-secours-titre">Secours</h2>
+  <div id="dlg-secours-corps"></div>
+  <form method="dialog"><button class="btn" value="fermer">Fermer</button></form>
+</dialog>
+
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+<script src="data/plan.js"></script>
+<script src="data/snapshot.js"></script>
+<script src="js/stats.js"></script>
+<script src="js/meteo.js"></script>
+<script src="js/decision.js"></script>
+<script src="js/reservation.js"></script>
+<script src="js/share.js"></script>
+<script src="js/store.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/ui-decision.js"></script>
+<script src="js/ui-meteo.js"></script>
+<script src="js/ui-refuge.js"></script>
+<script src="js/ui-sac.js"></script>
+<script src="version.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+# Liste blanche : tout est exclu sauf ce qui est publie ou outille.
+/*
+!/.gitignore
+!/README.md
+!/docs/
+!/tools/
+!/tests/
