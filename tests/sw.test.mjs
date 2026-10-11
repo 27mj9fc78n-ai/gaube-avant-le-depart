@@ -78,7 +78,7 @@ test('css, js, icônes : cache d’abord (versionnés par le cache), sans touche
   const w = monde({ reseau: async () => ok('precache') })
   await w.declencher('install')
   const avant = w.journal.fetchs.length
-  const r = await w.declencher('fetch', { request: { url: BASE + 'css/app.css', method: 'GET', mode: 'no-cors' } })
+  const r = await w.declencher('fetch', { request: { url: BASE + 'css/echappee.css', method: 'GET', mode: 'no-cors' } })
   assert.equal(r.resultat.corps, 'precache')
   assert.equal(w.journal.fetchs.length, avant)
 })
