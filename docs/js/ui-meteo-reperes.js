@@ -50,15 +50,15 @@
         h('span', { 'class': 'puce level-' + value }, LABELS_CONF[value] || 'Non évaluable'))
     }
     return h('section', { 'class': 'bloc confidence-card' },
-      h('p', { 'class': 'eyebrow' }, 'Quelle confiance accorder à cette prévision ?'),
       h('h2', null, old ? 'À actualiser avant de décider' : !comparable ? 'Comparaison trop limitée' : 'Confiance ' + (LABELS_CONF[c.globale] || 'limitée').toLowerCase()),
-      h('p', null, old ? 'Le relevé conservé est trop ancien. Les courbes ci-dessus décrivent ce relevé, pas une prévision validée pour partir.' :
-        !comparable ? 'Il manque plusieurs familles complètes pour apprécier leur accord. Actualisez avant de vous appuyer sur cette tendance.' :
-        c.horizon === 'basse' ? 'La sortie est encore loin : même si les modèles se rejoignent, les prévisions peuvent changer.' :
-          c.accord === 'basse' ? 'Les familles de modèles divergent sur la pluie. Gardez une marge et revérifiez près du départ.' : 'Les modèles donnent une tendance. L’état du sentier et l’avis du gardien restent essentiels.'),
-      row('Accord sur la pluie de vendredi', comparable ? c.accord : 'inconnu', !comparable ? 'Au moins deux familles complètes sont nécessaires pour comparer.' : 'Écart de ' + nombre(c.ecartPoints) + ' points entre les familles, pour un cumul ≥ 1 mm au refuge de ' + hhmm(ev.fenetres.vendredi[0]) + ' à ' + hhmm(ev.fenetres.vendredi[1]) + ', marge comprise.'),
-      row('Proximité de la sortie', c.horizon, 'Le repère reste limité à J−4 ou avant, modéré à J−3/J−2, puis peut devenir bon.'),
-      h('p', { 'class': 'source-note' }, 'Ces niveaux sont des repères qualitatifs de l’application, sans calibration locale. Ils ne sont ni un pourcentage de fiabilité ni une garantie. La confiance reprend la plus prudente des deux lignes ; elle ne change pas quand vous masquez une courbe.'))
+      h('p', null, old ? 'Le relevé conservé est trop ancien : les courbes décrivent ce relevé, pas une prévision validée pour partir.' :
+        !comparable ? 'Il manque des familles complètes pour apprécier leur accord. Actualiser avant de s’appuyer sur cette tendance.' :
+        c.horizon === 'basse' ? 'La sortie est encore loin : même d’accord, les modèles peuvent changer.' :
+          c.accord === 'basse' ? 'Les familles de modèles divergent sur la pluie. Garder de la marge et revérifier près du départ.' : 'Les modèles donnent une tendance. L’état du sentier et l’avis du gardien restent essentiels.'),
+      row('Accord sur la pluie de vendredi', comparable ? c.accord : 'inconnu', !comparable ? 'Au moins deux familles complètes sont nécessaires.' : 'Écart de ' + nombre(c.ecartPoints) + ' points entre les familles (cumul ≥ 1 mm, ' + hhmm(ev.fenetres.vendredi[0]) + '–' + hhmm(ev.fenetres.vendredi[1]) + ').'),
+      row('Proximité de la sortie', c.horizon, 'Limitée à J−4 ou avant, modérée à J−3/J−2, puis potentiellement bonne.'),
+      h('details', null, h('summary', null, 'D’où vient ce niveau ?'),
+        h('p', { 'class': 'source-note' }, 'Repère qualitatif, sans calibration locale : ni pourcentage de fiabilité ni garantie. Il reprend la plus prudente des deux lignes et ne change pas quand on masque une courbe.')))
   }
 
   function renderMeteo(racine, ctx) {
@@ -66,14 +66,12 @@
     if (themeListener) { themeListener.query.removeEventListener('change', themeListener.redraw); themeListener = null }
     U.vider(racine)
     const { snap, ev } = ctx.etat
-    racine.appendChild(h('section', { 'class': 'section-intro' },
-      h('p', { 'class': 'eyebrow' }, 'Préparer la sortie, garder de la marge'),
-      h('h2', null, 'La météo, en un coup d’œil'),
-      h('p', null, 'Température dehors, pluie et vent au refuge des Oulettes, à 2 151 m. Comparez les modèles sur notre créneau, puis explorez les heures de la journée à ce même endroit.')))
+    const sc = U.signalCard(ctx, { id: 'meteo' })
+    if (sc) racine.appendChild(sc)
     racine.appendChild(U.fraicheur(ctx))
     if (!snap || !ev) {
       racine.appendChild(h('section', { 'class': 'bloc tone-water' }, h('h2', null, 'Un relevé météo pour commencer'),
-        h('p', null, 'Actualisez avec une connexion pour comparer les prévisions du vendredi 16 et du samedi 17 octobre.')))
+        h('p', null, 'Actualiser avec une connexion pour comparer les prévisions du vendredi 16 et du samedi 17 octobre.')))
       return
     }
     const all = W.entries(snap), selected = all.filter(m => ['temp', 'precip', 'gust'].some(k => Array.isArray(m.data[k]) && m.data[k].some(W.finite))).map(m => m.id)
@@ -92,26 +90,19 @@
       let hourIndex = hours.indexOf(state.hour)
       if (hourIndex < 0) hourIndex = Math.max(0, hours.indexOf(win[0]))
       const buttons = {}
-      const daySwitch = h('div', { 'class': 'day-switch', role: 'group', 'aria-label': 'Jour de prévision' },
-        ['vendredi', 'samedi'].map(d => h('button', { type: 'button', 'class': 'btn-secondary', 'aria-pressed': String(d === day),
-          onclick: () => { state.day = d; state.hour = null; renderDay() } }, d === 'vendredi' ? 'Vendredi 16 · au refuge' : 'Samedi 17 · au refuge')))
+      const daySwitch = h('div', { 'class': 'segmented', role: 'group', 'aria-label': 'Jour de prévision' },
+        ['vendredi', 'samedi'].map(d => h('button', { type: 'button', 'aria-pressed': String(d === day),
+          onclick: () => { state.day = d; state.hour = null; renderDay() } }, d === 'vendredi' ? 'Vendredi 16' : 'Samedi 17')))
       explorer.appendChild(daySwitch)
       explorer.appendChild(h('h2', null, 'Au refuge, sur notre créneau · ' + hhmm(win[0]) + '–' + hhmm(win[1])))
-      explorer.appendChild(h('div', { 'class': 'weather-summary-scope note' },
-        h('strong', null, day === 'vendredi' ? 'Marche prévue : ' + hhmm(ev.fenetres.depart) + '–' + hhmm(ev.fenetres.arrivee) + '.' : 'Descente prévue : 08:00–14:00.'),
-        ' ', day === 'vendredi' ? 'Les cartes ci-dessous résument la météo au refuge de ' + hhmm(win[0]) + ' à ' + hhmm(win[1]) + ' : jusqu’à l’arrivée, plus une heure de marge.' : 'Les cartes ci-dessous résument la météo au refuge de 08:00 à 14:00, sur le créneau de descente.'))
+      explorer.appendChild(h('p', { 'class': 'weather-summary-scope' },
+        h('strong', null, day === 'vendredi' ? 'Marche : ' + hhmm(ev.fenetres.depart) + '–' + hhmm(ev.fenetres.arrivee) + '.' : 'Descente : 08:00–14:00.'),
+        ' Les cartes résument la météo dehors au refuge, ' + (day === 'vendredi' ? 'jusqu’à l’arrivée plus une heure de marge.' : 'sur le créneau de descente.')))
       const summary = h('div', { 'class': 'metric-grid' })
       explorer.appendChild(summary)
-      explorer.appendChild(h('div', { 'class': 'weather-reading', 'aria-label': 'Comment lire la météo' },
-        h('article', { 'class': 'weather-reading-card tone-cold' }, h('h3', null, 'Une fourchette sur le créneau'),
-          h('p', { 'class': 'note' }, 'La température va de la plus basse à la plus haute, sur toutes les heures et tous les modèles actifs complets du créneau. C’est une plage possible, pas une moyenne.')),
-        h('article', { 'class': 'weather-reading-card tone-water' }, h('h3', null, 'Une heure avec le curseur'),
-          h('p', { 'class': 'note' }, 'À l’heure choisie, la fourchette compare les modèles pour le même instant au refuge. Le curseur change l’heure, pas notre position sur le sentier.')),
-        h('article', { 'class': 'weather-reading-card tone-sun' }, h('h3', null, 'Un seul point en montagne'),
-          h('p', { 'class': 'note' }, 'Ces valeurs décrivent l’extérieur au refuge, pas le dortoir ni chaque étape du chemin. Le lac, les passages à l’ombre et les crêtes peuvent avoir d’autres conditions.'))))
-      explorer.appendChild(h('h3', null, 'La journée au refuge, heure par heure'))
-      explorer.appendChild(h('p', { 'class': 'chart-location-caption note' },
-        (day === 'vendredi' ? 'Vendredi 16 · 06:00–21:00' : 'Samedi 17 · 06:00–15:00') + ' · dehors, à 2 151 m · heures de Paris. Déplacez le curseur ou touchez le graphique.'))
+      explorer.appendChild(h('h3', null, 'Heure par heure, dehors à 2 151 m'))
+      explorer.appendChild(h('p', { 'class': 'chart-location-caption' },
+        (day === 'vendredi' ? 'Vendredi 16 · 06:00–21:00' : 'Samedi 17 · 06:00–15:00') + ' · heures de Paris. Déplacer le curseur ou toucher le graphique.'))
       const variables = h('div', { 'class': 'forecast-controls', role: 'group', 'aria-label': 'Information à tracer' }, Object.keys(VARIABLES).map(k => {
         const b = h('button', { type: 'button', 'class': 'btn-secondary', 'aria-pressed': String(state.variable === k),
           onclick: () => { state.variable = k; Object.keys(buttons).forEach(v => buttons[v].setAttribute('aria-pressed', String(v === k))); draw() } }, VARIABLES[k].label)
@@ -138,15 +129,20 @@
         return b
       }))
       explorer.appendChild(modelControls)
-      explorer.appendChild(h('p', { 'class': 'source-note' }, 'Touchez un modèle pour afficher ou masquer sa courbe : les cartes et les valeurs à l’heure choisie suivent cette sélection. Le halo montre l’écart entre les modèles actifs, pas une probabilité. Le fond jaune marque le créneau du résumé' + (day === 'vendredi' ? ', avec l’heure de marge après l’arrivée' : ', de 08:00 à 14:00') + '. Les lignes s’interrompent quand des données manquent. Les valeurs horaires peuvent être interpolées par le fournisseur.'))
       const risk = h('div', { 'class': 'metric-grid' }, riskCard(ev, day, 'I8', 'Un peu de pluie ?', 'rain', 'water'), riskCard(ev, day, 'I1', 'Pluie plus soutenue ?', 'rain', 'sun'))
-      explorer.appendChild(h('h3', null, 'Les scénarios de pluie au refuge · ' + hhmm(win[0]) + '–' + hhmm(win[1])))
+      explorer.appendChild(h('h3', null, 'Scénarios de pluie · ' + hhmm(win[0]) + '–' + hhmm(win[1])))
       explorer.appendChild(risk)
       const ind = indicateur(ev, day, 'I3'), p = ind && ind.valeur
-      explorer.appendChild(h('p', { 'class': 'note' }, 'Ces pourcentages viennent des ensembles : de nombreuses variantes de prévision, regroupées par famille. Ils sont indépendants des courbes choisies ci-dessus. 0 % signifie qu’aucun scénario n’atteint ce seuil dans ce relevé, pas une absence garantie de pluie.'))
       explorer.appendChild(h('div', { 'class': 'note tone-sun' }, h('strong', null, 'Et les orages ? '),
-        p && W.finite(p.centre) ? W.probabilite(p.centre) + ' dépassent le seuil d’énergie utilisé ici dans l’agrégat. ' : 'L’énergie favorable aux orages n’est pas évaluable dans ce relevé. ',
-        'Ce seuil (CAPE ≥ 500 J/kg) décrit une atmosphère favorable, pas la probabilité d’un orage au refuge. Revérifiez le bulletin montagne et la vigilance.'))
+        p && W.finite(p.centre) ? W.probabilite(p.centre) + ' dépassent le seuil d’énergie (CAPE ≥ 500 J/kg) : une atmosphère favorable, pas la probabilité d’un orage au refuge. ' : 'L’énergie favorable aux orages n’est pas évaluable dans ce relevé. ',
+        'Revérifier le bulletin montagne et la vigilance.'))
+      explorer.appendChild(h('details', null, h('summary', null, 'Comment lire ces courbes et ces chiffres'),
+        h('ul', { 'class': 'lecture' },
+          h('li', null, h('strong', null, 'Les cartes : '), 'la température va de la plus basse à la plus haute sur toutes les heures et tous les modèles actifs du créneau. C’est une plage, pas une moyenne.'),
+          h('li', null, h('strong', null, 'Le curseur : '), 'à l’heure choisie, on compare les modèles pour le même instant. Il change l’heure, pas notre position sur le sentier.'),
+          h('li', null, h('strong', null, 'Un seul point : '), 'ces valeurs décrivent l’extérieur du refuge, pas le dortoir ni chaque étape. Le lac, l’ombre et les crêtes peuvent différer.'),
+          h('li', null, h('strong', null, 'Les courbes : '), 'toucher un modèle l’affiche ou le masque ; les cartes suivent la sélection. Le halo montre l’écart entre modèles, le fond jaune le créneau' + (day === 'vendredi' ? ' (marge d’une heure après l’arrivée comprise)' : ' de 08:00 à 14:00') + '. Les lignes s’interrompent quand des données manquent ; les valeurs horaires peuvent être interpolées.'),
+          h('li', null, h('strong', null, 'Les pourcentages de pluie : '), 'ils viennent des ensembles (de nombreuses variantes de prévision) et ne dépendent pas des courbes choisies. 0 % veut dire qu’aucun scénario n’atteint le seuil, pas qu’il ne pleuvra pas.'))))
 
       function draw() {
         const sum = W.resume(snap, win[0], win[1], selected), at = W.at(snap, hours[hourIndex], selected), cfg = VARIABLES[state.variable]
@@ -244,11 +240,12 @@
     }
     renderDay()
     racine.appendChild(confidence(ev))
-    racine.appendChild(h('section', { 'class': 'bloc tone-forest' }, h('h2', null, 'Le bon réflexe avant de partir'),
-      h('p', null, 'Croisez ces modèles avec le bulletin montagne, la vigilance des Hautes-Pyrénées et les dernières nouvelles du gardien. À 2 151 m, froid, neige ou dalles humides peuvent changer la marche.'),
+    racine.appendChild(h('section', { 'class': 'bloc tone-forest' }, h('h2', null, 'Avant de partir'),
+      h('p', null, 'Croiser ces modèles avec le bulletin montagne, la vigilance des Hautes-Pyrénées et les nouvelles du gardien. À 2 151 m, froid, neige ou dalles humides changent la marche.'),
       h('div', { 'class': 'actions' }, U.link('https://meteofrance.com/meteo-montagne/pyrenees', 'Bulletin montagne'), U.link('https://vigilance.meteofrance.fr/fr/hautes-pyrenees', 'Vigilance 65')),
-      h('p', { 'class': 'source-note' }, 'La température est ajustée à l’altitude du refuge par Open-Meteo. Elle décrit l’extérieur. Le relief du cirque, les rafales en crête et le verglas sur les dalles restent mal représentés. Aucune prévision nocturne n’est conservée ici.'),
-      h('p', { 'class': 'source-note' }, 'Source des modèles : ', U.link('https://open-meteo.com/en/docs', 'Open-Meteo'), ' · ', U.link('https://open-meteo.com/en/docs/ensemble-api', 'Prévisions d’ensemble'), '. Les modèles sans données à cette échéance restent indisponibles, jamais assimilés à une météo sèche.')))
+      h('details', null, h('summary', null, 'Sources et limites'),
+        h('p', { 'class': 'source-note' }, 'La température est ajustée à l’altitude du refuge par Open-Meteo. Elle décrit l’extérieur. Le relief du cirque, les rafales en crête et le verglas sur les dalles restent mal représentés. Aucune prévision nocturne n’est conservée.'),
+        h('p', { 'class': 'source-note' }, 'Modèles : ', U.link('https://open-meteo.com/en/docs', 'Open-Meteo'), ' · ', U.link('https://open-meteo.com/en/docs/ensemble-api', 'Prévisions d’ensemble'), '. Un modèle sans données à cette échéance reste indisponible, jamais assimilé à une météo sèche.'))))
   }
   root.RGN_UI.renderMeteo = renderMeteo
 })(self)

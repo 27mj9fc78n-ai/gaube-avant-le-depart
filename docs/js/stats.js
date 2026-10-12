@@ -1,4 +1,4 @@
-/* Rando Perfecto : statistiques d'ensemble (pures, sans DOM, sans fuseau de l'appareil).
+/* Échappée : statistiques d'ensemble (pures, sans DOM, sans fuseau de l'appareil).
    Les heures sont des chaînes locales 'YYYY-MM-DDTHH:MM' comparées comme chaînes : jamais new Date(). */
 (function (root) {
   'use strict'

@@ -1,4 +1,4 @@
-/* Rando Perfecto : accès Open-Meteo (URLs, récupération, normalisation).
+/* Échappée : accès Open-Meteo (URLs, récupération, normalisation).
    Script classique (pas de module ES) : fonctionne en file:// et sous node:test. */
 (function (root) {
   'use strict'

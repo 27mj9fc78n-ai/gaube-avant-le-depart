@@ -1,4 +1,4 @@
-/* Rando Perfecto : service worker (réécrit pour la montagne).
+/* Échappée : service worker (réécrit pour la montagne).
    - Précache de la liste de version.js, chaque requête en cache:'reload' (GitHub Pages sert max-age=600).
    - Navigations, version.js et data/* : réseau d'abord avec délai de 3 s, repli sur le cache (faits toujours à jour).
    - css, js, icônes : cache d'abord (versionnés par le nom du cache).

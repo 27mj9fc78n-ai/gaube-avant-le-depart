@@ -4,7 +4,7 @@ Provenance et licences vérifiées sur les pages originales Wikimedia Commons le
 
 ## Lac de Gaube
 
-- Fichier utilisé : `lac-gaube.webp` (1600 × 1128 pixels).
+- Fichier utilisé : `lac-gaube.webp` (1100 × 776 pixels).
 - Auteur : **Hoppend**.
 - Prise de vue : **18 août 2023**. Photographie argentique numérisée.
 - Source : [Lac de Gaube Analogue.jpg](https://commons.wikimedia.org/wiki/File:Lac_de_Gaube_Analogue.jpg).
@@ -14,7 +14,7 @@ Provenance et licences vérifiées sur les pages originales Wikimedia Commons le
 
 ## Refuge des Oulettes de Gaube
 
-- Fichier utilisé : `refuge-oulettes.webp` (1600 × 1200 pixels).
+- Fichier utilisé : `refuge-oulettes.webp` (900 × 675 pixels).
 - Auteur : **En rouge**.
 - Prise de vue : **15 juin 2011**. Vue depuis le sentier du col des Mulets.
 - Source : [Refuge des Oulettes de Gaube IMGP0844.JPG](https://commons.wikimedia.org/wiki/File:Refuge_des_Oulettes_de_Gaube_IMGP0844.JPG).

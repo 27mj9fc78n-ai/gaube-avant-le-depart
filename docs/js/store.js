@@ -1,4 +1,4 @@
-/* Rando Perfecto : stockage local sous try/catch, avec repli mémoire.
+/* Échappée : stockage local sous try/catch, avec repli mémoire.
    Safari peut refuser ou purger localStorage (mode privé, quota, PWA non installée) : l'appli doit continuer.
    Tout reste sur l'appareil : rien n'est envoyé nulle part. */
 (function (root) {

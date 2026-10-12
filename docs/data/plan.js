@@ -38,7 +38,7 @@
   var questionsGardien = [
     'Le refuge est-il bien gardé pour la nuit du 16 au 17 ; qu’en est-il de la nuit du 17 au 18 ?',
     'Quel est l’état du sentier : neige, verglas et passerelles ?',
-    'Votre avis sur la météo et l’heure de demi-tour ?',
+    'Avis sur la météo et l’heure de demi-tour ?',
     'Eau pour les gourdes, couvertures, chauffage et sanitaires disponibles ?'
   ]
   var checklist = [

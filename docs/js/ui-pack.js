@@ -32,50 +32,48 @@
       'class': 'weight-input', value, onchange: e => {
         const raw = e.target.value
         const n = PK.nombre(raw, null, max)
-        if (raw !== '' && n === null) { U.toast('Saisis un nombre positif ou zéro.'); ctx.rerender(id); return }
+        if (raw !== '' && n === null) { U.toast('Saisir un nombre positif ou zéro.'); ctx.rerender(id); return }
         changer(ctx, cle, item.id, n, id)
       } }))
   }
   function intro(ctx, summary) {
     return h('section', { 'class': 'bloc pack-hero', 'aria-labelledby': 'sac-title' },
-      h('p', { 'class': 'eyebrow' }, 'Un sac prêt pour l’échappée'),
       h('h2', { id: 'sac-title' }, 'L’essentiel, sans trop se charger'),
-      h('p', { 'class': 'section-intro' }, 'Coche ce que tu emportes. Le poids se construit au fil de la liste, avec ton sac vide, l’eau et les repas. Tu peux remplacer les grammes par une vraie pesée.'),
+      h('p', { 'class': 'lede' }, 'Cocher ce qu’on emporte : le poids se calcule au fil de la liste, avec le sac vide, l’eau et les repas. Une vraie pesée remplace les grammes estimés.'),
       h('div', { 'class': 'metric-grid' },
         U.metric('Poids dans le sac', kg(summary.totalGrams), summary.checked ? 'Sac vide + objets cochés uniquement' : 'Sac vide seul : commence à cocher', 'backpack', 'water'),
-        U.metric('Eau et nourriture', kg(summary.consumableGrams), 'Déjà incluses dans le poids total', 'water', 'sun'),
-        U.metric('Préparation', summary.checked + ' / ' + summary.count, 'Objets et rappels vérifiés', 'check', 'forest')),
+        U.metric('Eau et nourriture', kg(summary.consumableGrams), 'Déjà incluses dans le total', 'water', 'sun')),
       h('label', { 'for': 'pack-progress', 'class': 'pack-item-title' }, summary.checked + ' points préparés sur ' + summary.count),
       h('progress', { id: 'pack-progress', 'class': 'pack-progress', max: summary.count, value: summary.checked }, summary.checked + ' / ' + summary.count),
-      h('p', { 'class': 'note' }, summary.missing.length ? summary.missing.length + ' essentiels restent à vérifier. Le poids est une estimation partielle tant que ton sac n’est pas entièrement renseigné.' : 'Les essentiels de cette liste sont cochés. Revois les quantités et les conditions du jour avant de partir.'),
+      h('p', { 'class': 'note' }, summary.missing.length ? summary.missing.length + ' essentiels restent à vérifier. Le poids reste une estimation partielle tant que le sac n’est pas entièrement renseigné.' : 'Les essentiels de cette liste sont cochés. Revois les quantités et les conditions du jour avant de partir.'),
       summary.zeroQuantities.length ? h('p', { 'class': 'note' }, 'Quantité à préparer : ' + summary.zeroQuantities.map(item => item.label).join(', ') + '. Une case cochée avec une quantité de zéro ne compte pas comme prête.') : null,
-      h('div', { 'class': 'pack-weight-fields' },
-        champ('Ton sac vide, en g', h('input', { id: 'pack-bag', type: 'number', inputmode: 'numeric', min: 0, max: 100000, step: 1,
+      h('details', Object.assign({ 'class': 'pack-fields' }, detailsAttrs(ctx, 'packEditors', 'fields', false)), h('summary', null, 'Mon sac vide et mon poids'), h('div', { 'class': 'pack-weight-fields' },
+        champ('Mon sac vide, en g', h('input', { id: 'pack-bag', type: 'number', inputmode: 'numeric', min: 0, max: 100000, step: 1,
           'class': 'weight-input', value: summary.bagGrams, onchange: e => {
             const n = PK.nombre(e.target.value, D.bagGrams)
             ctx.prefs.set('packBagGrams', n); ctx.rerender('pack-bag')
-          } }), 'Compté une seule fois, même si aucune case n’est cochée. Exemple : Deuter Trail 30, 1 120 g.'),
-        champ('Ton poids, en kg · facultatif', h('input', { id: 'pack-body', type: 'number', inputmode: 'decimal', min: 1, max: 350, step: 0.5,
+          } }), 'Compté une seule fois. Exemple : Deuter Trail 30, 1 120 g.'),
+        champ('Mon poids, en kg · facultatif', h('input', { id: 'pack-body', type: 'number', inputmode: 'decimal', min: 1, max: 350, step: 0.5,
           'class': 'weight-input', value: summary.bodyKg || '', onchange: e => {
             const n = PK.nombre(e.target.value, null, 350)
             ctx.prefs.set('packBodyKg', n || null); ctx.rerender('pack-body')
-          } }), 'Pour comparer la charge à ton gabarit. Cette valeur reste sur ton appareil.')),
-      h('p', { 'class': 'source-note' }, 'Les grammes de départ sont indicatifs. Peser les ensembles complets, et ne pas compter deux fois un objet : 0 g s’il est déjà inclus ailleurs.'))
+          } }), 'Pour comparer la charge au gabarit. Reste sur cet appareil.'))),
+      h('p', { 'class': 'source-note' }, 'Grammes de départ indicatifs. Ne pas compter deux fois un objet : 0 g s’il est déjà inclus ailleurs.'))
   }
   function comparaison(summary) {
     const ratio = summary.ratio
     return h('section', { 'class': 'bloc pack-comparison tone-sun', 'aria-labelledby': 'pack-compare-title' },
-      h('p', { 'class': 'eyebrow' }, 'Une charge qui te convient'),
       h('h2', { id: 'pack-compare-title' }, 'Léger, mais équipé pour le froid'),
-      h('p', null, 'Pour cette nuit en refuge, garde le sac aussi léger que possible sans retirer eau, chaleur ni équipement d’urgence. Essaie-le chargé avant la sortie et répartissez le matériel commun selon le confort de chacun.'),
+      h('p', null, 'Pour une nuit en refuge, le sac le plus léger possible, sans retirer eau, chaleur ni équipement d’urgence. L’essayer chargé avant la sortie et répartir le matériel commun selon le confort de chacun.'),
       ratio !== null ? h('div', { 'class': 'metric-grid' },
-        U.metric('Ta charge estimée', nombre(ratio, 1) + ' %', 'de ton poids corporel, pour les objets cochés', 'backpack', ratio > 20 ? 'cold' : 'water'),
-        U.metric('Repère journée · 10 %', kg(summary.dayReferenceGrams), 'Repère très général de REI', 'footprints', 'forest'),
+        U.metric('Ma charge estimée', nombre(ratio, 1) + ' %', 'de mon poids corporel, objets cochés', 'backpack', ratio > 20 ? 'cold' : 'water'),
+        U.metric('Repère journée · 10 %', kg(summary.dayReferenceGrams), 'Repère général de REI', 'footprints', 'forest'),
         U.metric('Repère itinérance · 20 %', kg(summary.trekReferenceGrams), 'Pour l’autonomie ; pas un objectif pour le refuge', 'mountain', 'sun')) :
-        h('p', { 'class': 'note' }, 'Si tu le souhaites, renseigne ton poids ci-dessus pour voir ce que représentent les repères généraux de 10 % et 20 %.'),
-      ratio !== null && ratio > 20 ? h('p', { 'class': 'note' }, 'La charge cochée dépasse le repère général de 20 %. Revois les doublons, les objets de confort et la répartition du matériel, en conservant les essentiels.') : null,
-      h('p', { 'class': 'source-note' }, 'Femmes et hommes : mêmes repères généraux ; le gabarit, la forme, l’habitude, le réglage du sac et les conditions comptent. Ces pourcentages ne sont ni une garantie de confort, ni une limite médicale, ni un poids à atteindre.'),
-      U.link(D.sources.weight.url, D.sources.weight.label))
+        h('p', { 'class': 'note' }, 'Renseigner son poids ci-dessus (facultatif) pour voir les repères généraux de 10 % et 20 %.'),
+      ratio !== null && ratio > 20 ? h('p', { 'class': 'note' }, 'La charge cochée dépasse le repère général de 20 %. Revoir les doublons, les objets de confort et la répartition du matériel, en conservant les essentiels.') : null,
+      h('details', null, h('summary', null, 'À propos de ces pourcentages'),
+        h('p', { 'class': 'source-note' }, 'Mêmes repères généraux pour les femmes et les hommes ; le gabarit, la forme, l’habitude, le réglage du sac et les conditions comptent. Ni garantie de confort, ni limite médicale, ni poids à atteindre.'),
+        h('p', { 'class': 'source-note' }, U.link(D.sources.weight.url, D.sources.weight.label))))
   }
   function ligne(ctx, item, state) {
     const checked = state.check && state.check[item.id] === true
@@ -90,7 +88,7 @@
     if (item.worn) controls.push(champ('Porté où ?', h('select', { id: 'pack-location-' + item.id, onchange: e => changer(ctx, 'packLocations', item.id, e.target.value, 'pack-location-' + item.id) },
       h('option', { value: 'porte', selected: worn }, 'Sur moi / en main'), h('option', { value: 'sac', selected: !worn }, 'Dans le sac'))))
     const zeroQuantity = checked && item.essential && item.unit && quantity === 0
-    const contribution = zeroQuantity ? 'Quantité zéro · cet essentiel reste à préparer' : item.task ? 'Rappel sans poids' : worn ? 'Porté sur toi · hors poids du sac' : checked ? nombre(weight * quantity, 0) + ' g dans le sac' : 'Non coché · hors calcul'
+    const contribution = zeroQuantity ? 'Quantité zéro · cet essentiel reste à préparer' : item.task ? 'Rappel sans poids' : worn ? 'Porté sur soi · hors poids du sac' : checked ? nombre(weight * quantity, 0) + ' g dans le sac' : 'Non coché · hors calcul'
     return h('li', { 'class': 'checklist-item' + (checked ? ' is-checked' : '') },
       h('div', { 'class': 'pack-item-title' }, h('label', { 'for': checkboxId }, h('input', { id: checkboxId, type: 'checkbox', checked, onchange: e => changer(ctx, 'check', item.id, e.target.checked, checkboxId) }),
         h('span', null, item.label), item.essential ? h('span', { 'class': 'pill' }, 'Essentiel') : null)),
@@ -104,14 +102,13 @@
   }
   function checklist(ctx, state) {
     return h('section', { 'class': 'bloc', 'aria-labelledby': 'pack-list-title' },
-      h('p', { 'class': 'eyebrow' }, 'Pour deux journées et une nuit'),
-      h('h2', { id: 'pack-list-title' }, 'Ton sac, à ton rythme'),
-      h('p', { 'class': 'section-intro' }, D.scope),
-      h('p', { 'class': 'note' }, 'Si neige ou verglas sont annoncés, revoir ensemble l’itinéraire, l’expérience et l’équipement avec le gardien. Ajouter du matériel à cette liste ne suffit pas à rendre le sentier praticable.'),
+      h('h2', { id: 'pack-list-title' }, 'La liste, à notre rythme'),
+      h('p', { 'class': 'lede' }, D.scope),
+      h('p', { 'class': 'note' }, 'En cas de neige ou de verglas annoncés, revoir ensemble l’itinéraire et l’équipement avec le gardien : du matériel en plus ne rend pas le sentier praticable.'),
       h('div', { 'class': 'checklist-grid' }, D.groups.map(group => {
         const items = D.items.filter(item => item.group === group.id)
         const prepared = items.filter(item => state.check && state.check[item.id] === true && !(item.essential && item.unit && PK.quantite(item, state.quantities) === 0)).length
-        return h('details', Object.assign({ 'class': 'checklist-group tone-' + group.tone }, detailsAttrs(ctx, 'packOpenGroups', group.id, group.id === 'warm' || group.id === 'food')),
+        return h('details', Object.assign({ 'class': 'checklist-group tone-' + group.tone }, detailsAttrs(ctx, 'packOpenGroups', group.id, group.id === 'warm')),
           h('summary', { 'class': 'pack-group-toggle' }, U.icon(group.icon), ' ', group.title, h('span', { 'class': 'pack-group-count' }, prepared + ' / ' + items.length)),
           h('p', { 'class': 'note' }, group.note),
           h('ul', { 'class': 'checklist-list' }, items.map(item => ligne(ctx, item, state))))
@@ -121,8 +118,8 @@
     const custom = PK.personnels(state.custom)
     function save(next, focus) { ctx.prefs.set('packCustom', next); ctx.rerender(focus) }
     return h('section', { 'class': 'bloc', 'aria-labelledby': 'pack-custom-title' },
-      h('h2', { id: 'pack-custom-title' }, 'Et tes affaires à toi'),
-      h('p', { 'class': 'section-intro' }, 'Un appareil photo, un livre, une gourde supplémentaire ? Ajoute le poids réellement porté dans ton sac. Total des objets personnels cochés : ' + kg(summary.customGrams) + '.'),
+      h('h2', { id: 'pack-custom-title' }, 'Mes affaires personnelles'),
+      h('p', { 'class': 'lede' }, 'Un appareil photo, un livre, une gourde en plus ? Ajouter le poids réellement porté. Total coché : ' + kg(summary.customGrams) + '.'),
       custom.length ? h('ul', { 'class': 'checklist-list' }, custom.slice(0, 30).map((item, i) => h('li', { 'class': 'checklist-item' + (item.checked === true ? ' is-checked' : '') },
         h('div', { 'class': 'pack-item-title' }, h('label', { 'for': 'pack-custom-check-' + i }, h('input', { id: 'pack-custom-check-' + i, type: 'checkbox', checked: item.checked === true, onchange: e => {
           const next = custom.slice(); next[i] = Object.assign({}, item, { checked: e.target.checked }); save(next, 'pack-custom-check-' + i)
@@ -137,7 +134,7 @@
         const form = e.currentTarget
         const label = form.elements.namedItem('objet').value.trim().slice(0, 100)
         const grams = PK.nombre(form.elements.namedItem('grammes').value, null)
-        if (!label || grams === null) { U.toast('Ajoute un nom et un poids en grammes.'); return }
+        if (!label || grams === null) { U.toast('Ajouter un nom et un poids en grammes.'); return }
         save(custom.concat([{ label, grams, checked: true }]), 'pack-new-name')
       } }, champ('Nom de l’objet', h('input', { id: 'pack-new-name', name: 'objet', maxlength: 100, required: true, placeholder: 'Ex. appareil photo' })),
       champ('Poids total en g', h('input', { id: 'pack-new-grams', name: 'grammes', type: 'number', inputmode: 'numeric', min: 0, max: 100000, required: true, 'class': 'weight-input', placeholder: '350' })),
@@ -147,22 +144,22 @@
     return h('section', { 'class': 'bloc tone-forest', 'aria-labelledby': 'pack-advice-title' },
       h('h2', { id: 'pack-advice-title' }, 'Le dernier coup d’œil'),
       h('ul', { 'class': 'conseil-list' },
-        h('li', null, h('strong', null, 'Une vraie pesée. '), 'Pèse le sac complet, eau et repas compris : la balance reste le meilleur contrôle.'),
-        h('li', null, h('strong', null, 'Facile à attraper. '), 'Garde veste, eau, encas et frontale accessibles ; protège les vêtements secs.'),
-        h('li', null, h('strong', null, 'Pas de doublons inutiles. '), 'Répartissez ce qui peut être commun, en gardant chacun sa lumière, son eau et sa chaleur.'),
+        h('li', null, h('strong', null, 'Une vraie pesée. '), 'Peser le sac complet, eau et repas compris : la balance reste le meilleur contrôle.'),
+        h('li', null, h('strong', null, 'Facile à attraper. '), 'Veste, eau, encas et frontale à portée de main ; vêtements secs protégés.'),
+        h('li', null, h('strong', null, 'Pas de doublons inutiles. '), 'Répartir ce qui peut être commun, en gardant chacun sa lumière, son eau et sa chaleur.'),
         h('li', null, h('strong', null, 'Refuge gardé à confirmer. '), 'Si l’accueil ou les repas changent, cette liste doit changer aussi : ne pas compter sur un drap-sac seul pour dormir au froid.')),
       h('details', { 'class': 'pack-reference-list' }, h('summary', null, 'D’où viennent les conseils et les poids ?'),
         h('p', { 'class': 'source-note' }, 'Sources consultées le 11 octobre 2026. La liste FFCAM de Bayssellance sert de référence de préparation en refuge, et non de preuve des équipements fournis aux Oulettes. Les exemples de matériel servent uniquement à expliquer les grammes.'),
         h('ul', null, Object.keys(D.sources).map(key => h('li', null, U.link(D.sources[key].url, D.sources[key].label)))),
-        h('p', { 'class': 'source-note' }, 'Les autres poids sont des estimations pratiques pour commencer. Ils ne décrivent pas ton matériel, ta taille de vêtement ni tes besoins personnels.')))
+        h('p', { 'class': 'source-note' }, 'Les autres poids sont des estimations pratiques pour commencer : ils ne décrivent pas le matériel, la taille de vêtement ni les besoins de chacun.')))
   }
   function renderSac(racine, ctx) {
     const state = etat(ctx.prefs), summary = PK.calculer(D, state)
     U.vider(racine)
     racine.appendChild(intro(ctx, summary))
     racine.appendChild(h('div', { 'class': 'pack-live-load', role: 'status', 'aria-live': 'polite', 'aria-atomic': 'true' },
-      h('span', null, U.icon('backpack'), ' Ton sac · '), h('strong', null, kg(summary.totalGrams)),
-      h('span', { 'class': 'source-note' }, ' · ' + summary.checked + ' points préparés · eau et repas inclus s’ils sont cochés')))
+      h('span', null, U.icon('backpack'), ' Mon sac · '), h('strong', null, kg(summary.totalGrams)),
+      h('span', { 'class': 'live-note' }, ' · ' + summary.checked + ' points préparés · eau et repas inclus s’ils sont cochés')))
     racine.appendChild(comparaison(summary))
     racine.appendChild(checklist(ctx, state))
     racine.appendChild(personnels(ctx, state, summary))

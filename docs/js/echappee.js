@@ -1,4 +1,4 @@
-/* Rando Perfecto : orchestration (relevé, rafraîchissement, onglets, réseau, service worker).
+/* Échappée : orchestration (relevé, rafraîchissement, onglets, réseau, service worker).
    Le relevé affiché est toujours le plus récent entre celui du téléphone et celui embarqué dans l'appli,
    avec son âge. Rien de ce que les personnes saisissent ne quitte l'appareil. */
 (function (root) {
@@ -129,15 +129,17 @@
   function presenterPage(id) {
     const home = id === 'accueil'
     const pages = {
-      decision: ['Notre rando, à notre rythme', 'Du Pont d’Espagne aux Oulettes de Gaube.'],
-      meteo: ['Quel temps là-haut ?', 'Les prévisions dehors, au refuge à 2 151 m.'],
-      refuge: ['Une nuit aux Oulettes', 'Les infos pratiques pour arriver sereinement.'],
-      sac: ['L’essentiel dans le sac', 'Préparer deux journées et une nuit au refuge.']
+      decision: ['Notre rando', 'Du Pont d’Espagne aux Oulettes de Gaube.'],
+      meteo: ['Quel temps là-haut ?', 'Dehors, au refuge, à 2 151 m.'],
+      refuge: ['Une nuit aux Oulettes', 'Les infos utiles pour arriver sereinement.'],
+      sac: ['Mon sac', 'Deux journées et une nuit au refuge.']
     }
     const titre = document.getElementById('hero-title')
     if (home) titre.replaceChildren(document.createTextNode('Une échappée'), document.createElement('br'), document.createTextNode('face au Vignemale.'))
     else titre.textContent = pages[id][0]
-    document.getElementById('hero-eyebrow').textContent = home ? '16–17 octobre · Les Oulettes de Gaube' : 'Notre échappée, les bons repères'
+    const eyebrow = document.getElementById('hero-eyebrow')
+    eyebrow.textContent = home ? '16–17 octobre · Les Oulettes de Gaube' : ''
+    eyebrow.hidden = !home
     document.getElementById('hero-subtitle').textContent = home ? 'Du lac au refuge. Deux jours à notre rythme.' : pages[id][1]
     ;['hero-actions', 'hero-chips', 'hero-bottom'].forEach(cle => { document.getElementById(cle).hidden = !home })
   }
@@ -270,6 +272,7 @@
   function demarrer() {
     etat.snap = chargerSnapshot()
     initPhotos()
+    document.querySelectorAll('[data-icone]').forEach(el => el.replaceChildren(U.svgIcon(el.dataset.icone)))
     // Sonde d'écriture : le stockage local fonctionne-t-il vraiment (mode privé, quota) ? Et la protection contre l'effacement ?
     etatStockage.ecriture = store.set('sonde', 1); store.remove('sonde')
     if (navigator.storage && navigator.storage.persisted) navigator.storage.persisted().then(v => { etatStockage.persistant = !!v; if (actif === 'sac') rendreSiPossible() }).catch(() => {})

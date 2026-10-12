@@ -1,4 +1,4 @@
-/* Rando Perfecto : moteur de signal météo (pur, testé sur réponses figées).
+/* Échappée : moteur de signal météo (pur, testé sur réponses figées).
    Conventions du groupe, NON calibrées, affichées comme telles : ce n'est pas une consigne de sécurité.
    Jamais de « GO » ni de « VERT » dans les libellés destinés aux personnes. */
 (function (root) {

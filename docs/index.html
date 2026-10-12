@@ -16,7 +16,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icon-192.png" type="image/png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<link rel="stylesheet" href="css/echappee-parcours.css">
+<link rel="stylesheet" href="css/echappee.css">
 </head>
 <body data-view="accueil">
 <a class="evitement" href="#contenu">Aller au contenu</a>
@@ -27,10 +27,10 @@
     <div class="header-actions"><span class="trip-date">16–17 octobre 2026</span><button id="btn-secours" class="btn btn-secours btn-small" type="button" aria-haspopup="dialog">Secours</button></div>
   </header>
   <nav class="navigation" aria-label="Notre randonnée"><div class="onglets" role="tablist" aria-label="Sections">
-    <button id="tab-decision" class="onglet-btn" role="tab" aria-selected="false" aria-controls="onglet-decision" type="button"><span aria-hidden="true">↗</span>La rando</button>
-    <button id="tab-meteo" class="onglet-btn" role="tab" aria-selected="false" aria-controls="onglet-meteo" tabindex="-1" type="button"><span aria-hidden="true">⛅</span>Météo</button>
-    <button id="tab-refuge" class="onglet-btn" role="tab" aria-selected="false" aria-controls="onglet-refuge" tabindex="-1" type="button"><span aria-hidden="true">⌂</span>Refuge</button>
-    <button id="tab-sac" class="onglet-btn" role="tab" aria-selected="false" aria-controls="onglet-sac" tabindex="-1" type="button"><span aria-hidden="true">🎒</span>Mon sac</button>
+    <button id="tab-decision" class="onglet-btn" role="tab" aria-selected="false" aria-controls="onglet-decision" type="button"><span class="icon" data-icone="route" aria-hidden="true"></span>La rando</button>
+    <button id="tab-meteo" class="onglet-btn" role="tab" aria-selected="false" aria-controls="onglet-meteo" tabindex="-1" type="button"><span class="icon" data-icone="cloud-sun" aria-hidden="true"></span>Météo</button>
+    <button id="tab-refuge" class="onglet-btn" role="tab" aria-selected="false" aria-controls="onglet-refuge" tabindex="-1" type="button"><span class="icon" data-icone="house" aria-hidden="true"></span>Refuge</button>
+    <button id="tab-sac" class="onglet-btn" role="tab" aria-selected="false" aria-controls="onglet-sac" tabindex="-1" type="button"><span class="icon" data-icone="backpack" aria-hidden="true"></span>Mon sac</button>
   </div></nav>
   </div>
   <section class="hero" aria-label="Le lac de Gaube">
@@ -56,7 +56,7 @@
     <section id="onglet-sac" class="onglet" role="tabpanel" aria-labelledby="tab-sac" hidden></section>
   </main>
   <aside class="mountain-reminder" hidden><p><strong>Avant de partir :</strong> consulter le bulletin montagne et demander l’état du sentier au gardien. La confiance des modèles ne garantit pas la sécurité sur le terrain.</p><div class="useful-links"><a href="https://vigilance.meteofrance.fr" target="_blank" rel="noopener noreferrer">Vigilance Météo-France</a><a href="https://meteofrance.com/meteo-montagne/pyrenees" target="_blank" rel="noopener noreferrer">Bulletin montagne</a><a id="lien-appel-gardien" href="tel:+33988184146">Appeler le gardien</a></div></aside>
-  <footer class="pied"><div><span>Météo : <a href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer">Open-Meteo</a>, CC BY 4.0.</span><span>Vos choix restent sur cet appareil. Open-Meteo reçoit l’adresse IP lors des actualisations.</span></div><details><summary>Photos et sources</summary><div id="photo-credits"></div><p id="pied-version"></p></details></footer>
+  <footer class="pied"><div><span>Météo : <a href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer">Open-Meteo</a>, CC BY 4.0.</span><span>Nos choix restent sur cet appareil. Open-Meteo reçoit l’adresse IP lors des actualisations.</span></div><details><summary>Photos et sources</summary><div id="photo-credits"></div><p id="pied-version"></p></details></footer>
 </div>
 <dialog id="dlg-secours" class="dlg" aria-labelledby="dlg-secours-titre"><h2 id="dlg-secours-titre">Secours en montagne</h2><div id="dlg-secours-corps"></div><form method="dialog"><button class="btn" value="fermer">Fermer</button></form></dialog>
 <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
@@ -76,6 +76,6 @@
 <script src="js/ui-hut.js"></script>
 <script src="js/ui-pack.js"></script>
 <script src="version.js"></script>
-<script src="js/echappee-cinema.js"></script>
+<script src="js/echappee.js"></script>
 </body>
 </html>
