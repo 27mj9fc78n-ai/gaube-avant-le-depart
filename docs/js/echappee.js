@@ -144,6 +144,14 @@
     ;['hero-actions', 'hero-chips', 'hero-bottom'].forEach(cle => { document.getElementById(cle).hidden = !home })
   }
 
+  // Accueil : le menu est posé sur la photo ; une fois la page défilée, il se fixe en haut pour rester utilisable.
+  function initDefilement() {
+    let attente = false
+    function maj() { attente = false; document.body.classList.toggle('est-defile', root.scrollY > 120) }
+    root.addEventListener('scroll', () => { if (!attente) { attente = true; root.requestAnimationFrame(maj) } }, { passive: true })
+    maj()
+  }
+
   function initOnglets() {
     const ids = ONGLETS.map(o => o.id)
     ids.forEach((id, i) => {
@@ -278,6 +286,7 @@
     if (navigator.storage && navigator.storage.persisted) navigator.storage.persisted().then(v => { etatStockage.persistant = !!v; if (actif === 'sac') rendreSiPossible() }).catch(() => {})
     calculer()
     initOnglets()
+    initDefilement()
     initReseau()
     initSecours()
     initServiceWorker()

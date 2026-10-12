@@ -73,13 +73,15 @@ img { max-width:100%; }
 .onglet-btn { background:color-mix(in srgb,var(--nav-fond) 45%,var(--carte)); color:var(--nav-encre); }
 .onglet-btn[aria-selected=true] { background:var(--nav-encre); color:var(--carte); }
 /* L'accueil garde la navigation sur la photo. Les autres vues libèrent la place. */
-body[data-view=accueil] .site-chrome { position:absolute; left:0; right:0; top:0; background:linear-gradient(#11253b99,transparent); border-bottom:0; color:#fffdf7; }
-body[data-view=accueil] .brand,body[data-view=accueil] .brand small { color:#fffdf7; }
-body[data-view=accueil] .brand-icon { color:#fffdf7; background:#ffffff24; }
+body[data-view=accueil]:not(.est-defile) .site-chrome { position:absolute; left:0; right:0; top:0; background:linear-gradient(#11253b99,transparent); border-bottom:0; color:#fffdf7; }
+body[data-view=accueil]:not(.est-defile) .brand,body[data-view=accueil]:not(.est-defile) .brand small { color:#fffdf7; }
+body[data-view=accueil]:not(.est-defile) .brand-icon { color:#fffdf7; background:#ffffff24; }
 body[data-view=accueil] .trip-date { display:none; }
-body[data-view=accueil] .btn-secours { color:#fffdf7; background:#152a414d; border:1px solid #ffffff80; }
-body[data-view=accueil] .onglet-btn { color:#fffdf7; background:transparent; font-weight:500; }
-body[data-view=accueil] .onglet-btn:hover,body[data-view=accueil] .onglet-btn[aria-selected=true] { background:#ffffff22; }
+body[data-view=accueil]:not(.est-defile) .btn-secours { color:#fffdf7; background:#152a414d; border:1px solid #ffffff80; }
+body[data-view=accueil]:not(.est-defile) .onglet-btn { color:#fffdf7; background:transparent; font-weight:500; }
+body[data-view=accueil]:not(.est-defile) .onglet-btn:hover,body[data-view=accueil]:not(.est-defile) .onglet-btn[aria-selected=true] { background:#ffffff22; }
+/* Accueil défilé : le menu redevient accessible, fixé en haut avec un fond plein. */
+body.est-defile[data-view=accueil] .site-chrome { position:fixed; top:0; left:50%; transform:translateX(-50%); width:100%; max-width:1060px; box-shadow:0 2px 14px #0002; }
 body[data-view=accueil] .hero { min-height:540px; height:85svh; max-height:800px; justify-content:center; text-align:center; }
 body[data-view=accueil] .hero-shade { background:linear-gradient(180deg,#10253bd4 0%,#18375038 25%,#122c456b 56%,#101f34d6 100%); }
 body[data-view=accueil] .hero-copy { max-width:790px; padding:115px 26px 105px; text-shadow:0 2px 22px #10253b8a; }
