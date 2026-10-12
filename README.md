@@ -2,6 +2,8 @@
 
 Application statique pour préparer une randonnée les 16–17 octobre 2026 aux Oulettes de Gaube. Les quatre onglets réunissent l’itinéraire et ses conseils, les prévisions comparées à 2 151 m, les rappels pratiques du refuge et une checklist avec estimation du poids du sac.
 
+Un accueil photographique immersif mène directement à la météo et à la randonnée. Les quatre pages pratiques utilisent un en-tête compact ; les liens directs `#decision`, `#meteo`, `#refuge` et `#sac` restent disponibles. Le logo ramène à `#accueil`. Les fonds ivoire et sable, avec une encre ardoise et des touches bleu lac, corail et ambre, gardent les informations lisibles.
+
 - **La rando** : températures à l’arrivée et au départ du samedi, pluie et rafales sur la marche, horaires ajustables, repères d’itinéraire et conseils sourcés.
 - **Météo** : graphique horaire interactif de température, pluie et rafales, sélection des modèles, fourchette et confiance qualitative expliquée. Une valeur manquante ne devient jamais zéro ; les relevés anciens restent identifiés.
 - **Refuge** : photo datée, dîner, arrivée, dortoirs, eau, chauffage à confirmer, questions utiles et notes locales facultatives.

@@ -22,7 +22,7 @@
     { id: 'refuge', rendre: (r, c) => U.renderRefuge(r, c) },
     { id: 'sac', rendre: (r, c) => U.renderSac(r, c) }
   ]
-  let actif = 'decision'
+  let actif = 'accueil'
 
   const etat = { snap: null, ev: null, table: [], nowMs: Date.now(), nowIso: '' }
   // ecriture : le stockage local fonctionne-t-il (test d'écriture) ; persistant : Safari a-t-il accordé la protection contre l'effacement
@@ -89,6 +89,7 @@
   }
 
   function rendre(focusId) {
+    if (actif === 'accueil') { majEntete(); return }
     const y = root.scrollY
     const o = ONGLETS.find(x => x.id === actif)
     const racine = document.getElementById('onglet-' + actif)
@@ -107,16 +108,38 @@
   }
 
   function choisirOnglet(id, focus) {
+    if (id !== 'accueil' && !ONGLETS.some(o => o.id === id)) id = 'accueil'
     actif = id
+    document.body.dataset.view = id
+    document.getElementById('accueil').hidden = id !== 'accueil'
+    document.querySelector('.connection-row').hidden = id === 'accueil'
+    document.querySelector('.mountain-reminder').hidden = id === 'accueil'
+    presenterPage(id)
     ONGLETS.forEach(o => {
       const btn = document.getElementById('tab-' + o.id), pan = document.getElementById('onglet-' + o.id)
       const sel = o.id === id
-      btn.setAttribute('aria-selected', String(sel)); btn.tabIndex = sel ? 0 : -1; pan.hidden = !sel
+      btn.setAttribute('aria-selected', String(sel)); btn.tabIndex = sel || (id === 'accueil' && o.id === 'decision') ? 0 : -1; pan.hidden = !sel
     })
     calculer(); rendre()
     root.scrollTo(0, 0)
     if (focus) document.getElementById('tab-' + id).focus()
     try { history.replaceState(null, '', '#' + id) } catch (e) { /* file:// ou contexte restreint */ }
+  }
+
+  function presenterPage(id) {
+    const home = id === 'accueil'
+    const pages = {
+      decision: ['Notre rando, à notre rythme', 'Du Pont d’Espagne aux Oulettes de Gaube.'],
+      meteo: ['Quel temps là-haut ?', 'Les prévisions dehors, au refuge à 2 151 m.'],
+      refuge: ['Une nuit aux Oulettes', 'Les infos pratiques pour arriver sereinement.'],
+      sac: ['L’essentiel dans le sac', 'Préparer deux journées et une nuit au refuge.']
+    }
+    const titre = document.getElementById('hero-title')
+    if (home) titre.replaceChildren(document.createTextNode('Une échappée'), document.createElement('br'), document.createTextNode('face au Vignemale.'))
+    else titre.textContent = pages[id][0]
+    document.getElementById('hero-eyebrow').textContent = home ? '16–17 octobre · Les Oulettes de Gaube' : 'Notre échappée, les bons repères'
+    document.getElementById('hero-subtitle').textContent = home ? 'Du lac au refuge. Deux jours à notre rythme.' : pages[id][1]
+    ;['hero-actions', 'hero-chips', 'hero-bottom'].forEach(cle => { document.getElementById(cle).hidden = !home })
   }
 
   function initOnglets() {
@@ -134,7 +157,17 @@
       })
     })
     const h0 = (root.location.hash || '').replace('#', '')
-    choisirOnglet(ids.indexOf(h0) >= 0 ? h0 : 'decision', false)
+    choisirOnglet(ids.indexOf(h0) >= 0 ? h0 : 'accueil', false)
+    document.querySelectorAll('[data-naviguer]').forEach(b => b.addEventListener('click', () => choisirOnglet(b.dataset.naviguer, false)))
+    root.addEventListener('hashchange', () => {
+      const id = (root.location.hash || '').replace('#', '')
+      if ((id === 'accueil' || ids.includes(id)) && id !== actif) choisirOnglet(id, false)
+    })
+    document.querySelector('.evitement').addEventListener('click', e => {
+      e.preventDefault()
+      const contenu = document.getElementById('contenu')
+      contenu.focus({ preventScroll: true }); contenu.scrollIntoView({ block: 'start' })
+    })
   }
 
   function enregistrerHistorique() {
@@ -248,7 +281,7 @@
     minuteur()
     majEntete()
     document.getElementById('lien-appel-gardien').setAttribute('href', 'tel:' + PLAN.refuge.tel)
-    document.querySelector('.brand').addEventListener('click', e => { e.preventDefault(); choisirOnglet('decision', false) })
+    document.querySelector('.brand').addEventListener('click', e => { e.preventDefault(); choisirOnglet('accueil', false) })
     if (enLigne) rafraichir(true)
   }
 
