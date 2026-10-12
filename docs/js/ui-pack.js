@@ -41,7 +41,7 @@
       h('h2', { id: 'sac-title' }, 'L’essentiel, sans trop se charger'),
       h('p', { 'class': 'lede' }, 'Cocher ce qu’on emporte : le poids se calcule au fil de la liste, avec le sac vide, l’eau et les repas. Une vraie pesée remplace les grammes estimés.'),
       h('div', { 'class': 'metric-grid' },
-        U.metric('Poids dans le sac', kg(summary.totalGrams), summary.checked ? 'Sac vide + objets cochés uniquement' : 'Sac vide seul : commence à cocher', 'backpack', 'water'),
+        U.metric('Poids dans le sac', kg(summary.totalGrams), summary.checked ? 'Sac vide + objets cochés uniquement' : 'Sac vide seul : rien n’est encore coché', 'backpack', 'water'),
         U.metric('Eau et nourriture', kg(summary.consumableGrams), 'Déjà incluses dans le total', 'water', 'sun')),
       h('label', { 'for': 'pack-progress', 'class': 'pack-item-title' }, summary.checked + ' points préparés sur ' + summary.count),
       h('progress', { id: 'pack-progress', 'class': 'pack-progress', max: summary.count, value: summary.checked }, summary.checked + ' / ' + summary.count),

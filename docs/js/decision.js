@@ -181,7 +181,7 @@
       inds.push({
         id: 'I6', nom: 'Timing d’orage', valeur: timing, valeurNum: null, niveau: niveauI6,
         texte: capeInconnue ? 'Orage non évaluable (aucun modèle de CAPE complet sur la fenêtre)' :
-          tOr ? 'Premier risque d’orage (blocs de 3 h) : ' + hh(tOr) + ' ; arrivée prévue ' + hh(f.arrivee) + ', marge ' + timing.margeH + ' h' : 'Aucun bloc de 3 h avec risque d’orage détecté avant la fin de journée'
+          tOr ? 'Premier risque d’orage (blocs de 3 h) : ' + hh(tOr) + ' ; arrivée prévue ' + hh(f.arrivee) + (timing.margeH < 0 ? ', soit ' + (-timing.margeH) + ' h après' : ', marge ' + timing.margeH + ' h') : 'Aucun bloc de 3 h avec risque d’orage détecté avant la fin de journée'
       })
       inds.push({
         id: 'I7', nom: 'Timing de pluie', valeur: timing, valeurNum: null,

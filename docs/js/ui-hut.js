@@ -24,7 +24,7 @@
   function photoRefuge(photo) {
     if (!photo) return null
     return h('figure', { 'class': 'photo-card refuge-photo' },
-      h('img', { src: photo.src, alt: photo.alt, width: 900, height: 675, loading: 'lazy', decoding: 'async' }),
+      h('img', { src: photo.src, alt: photo.alt, width: 900, height: 675, loading: 'eager', decoding: 'async' }),
       h('figcaption', { 'class': 'photo-credit' },
         'Photo : ', lien(photo.source, photo.author + ' · ' + photo.date), ' · ', lien(photo.licenseUrl, photo.license),
         '. Vue de 2011, avant la rénovation de 2026.'))
@@ -50,7 +50,7 @@
       h('h2', { id: 'h-refuge-vie' }, 'Pour être bien au refuge'),
       h('div', { 'class': 'info-grid' },
         carte('Dîner à 19 h', 'Arriver avant 18 h. Prévenir les gardiennes en cas de retard et signaler les besoins alimentaires en amont.', 'clock', 'sun'),
-        carte('Le drap-sac dans le sac', 'Apporter son drap-sac et sa frontale. Des Crocs sont annoncées à l’entrée : inutile d’ajouter une grosse paire de chaussures.', 'bed', 'coral'),
+        carte('Le drap-sac dans le sac', 'Apporter son drap-sac et sa frontale. Des Crocs sont annoncés à l’entrée : inutile d’ajouter une grosse paire de chaussures.', 'bed', 'coral'),
         carte('L’eau et l’énergie sont précieuses', 'Charger téléphone et montre avant le départ. La quantité d’eau et l’électricité peuvent être limitées : demander où remplir les gourdes.', 'water', 'teal'),
         carte('Une couche chaude pour la soirée', 'La température intérieure et le chauffage après rénovation ne sont pas confirmés. Garder des vêtements secs et chauds pour la soirée.', 'thermometer', 'mint'),
         carte('Une soirée à partager', 'Salle commune, livres, jeux et terrasse face au Vignemale. Frontale discrète la nuit, respect du sommeil et déchets à redescendre.', 'heart', 'coral'),

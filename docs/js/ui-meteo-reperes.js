@@ -165,7 +165,7 @@
         }) })).filter(m => selected.indexOf(m.id) >= 0)
         const values = curves.flatMap(m => m.values.filter(W.finite))
         U.vider(graph)
-        if (!values.length) { graph.appendChild(h('p', { 'class': 'note' }, 'Aucune valeur disponible pour cette sélection. Activez un autre modèle ou une autre variable.')); return }
+        if (!values.length) { graph.appendChild(h('p', { 'class': 'note' }, 'Aucune valeur disponible pour cette sélection. Activer un autre modèle ou une autre variable.')); return }
         const measured = Math.round(graph.getBoundingClientRect().width)
         const width = Math.max(240, measured || 760), height = 270, left = 42, right = width - 20, top = 26, bottom = 223
         let lo = Math.min(...values), hi = Math.max(...values)

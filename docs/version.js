@@ -3,7 +3,7 @@
    (css, js, icônes, manifeste) : ne pas l'éditer à la main, un test échoue si elle est périmée.
    `contenu` = date de vérification des faits du refuge (data/plan.js), affichée en pied de page. */
 self.RGN_VERSION = {
-  app: 'v1-3b511423',
+  app: 'v1-68a2e604',
   contenu: '2026-10-11',
   precache: [
     './', 'index.html', 'manifest.webmanifest', 'version.js',
