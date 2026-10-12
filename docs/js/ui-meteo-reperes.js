@@ -36,7 +36,8 @@
     const ind = indicateur(ev, day, id), v = ind && ind.valeur
     const data = v && W.finite(v.centre)
     const value = data ? W.probabilite(v.centre) : 'Non évaluable'
-    const explanation = id === 'I1' ? 'Scénarios avec au moins 5 mm sur toute la marche.' : 'Scénarios avec au moins 1 mm sur toute la marche.'
+    const win = ev.fenetres[day]
+    const explanation = 'Au point météo du refuge, de ' + hhmm(win[0]) + ' à ' + hhmm(win[1]) + ' : scénarios avec au moins ' + (id === 'I1' ? '5' : '1') + ' mm cumulés.'
     const range = data && W.finite(v.min) && W.finite(v.max) && v.min !== v.max
       ? ' Selon les familles : ' + W.probabilite(v.min).replace(' des scénarios', '') + ' à ' + W.probabilite(v.max).replace(' des scénarios', '') + '.' : ''
     return U.metric(title, value, explanation + range, icon, tone)
@@ -55,7 +56,7 @@
         !comparable ? 'Il manque plusieurs familles complètes pour apprécier leur accord. Actualisez avant de vous appuyer sur cette tendance.' :
         c.horizon === 'basse' ? 'La sortie est encore loin : même si les modèles se rejoignent, les prévisions peuvent changer.' :
           c.accord === 'basse' ? 'Les familles de modèles divergent sur la pluie. Gardez une marge et revérifiez près du départ.' : 'Les modèles donnent une tendance. L’état du sentier et l’avis du gardien restent essentiels.'),
-      row('Accord sur la pluie de vendredi', comparable ? c.accord : 'inconnu', !comparable ? 'Au moins deux familles complètes sont nécessaires pour comparer.' : 'Écart de ' + nombre(c.ecartPoints) + ' points entre les familles, pour un cumul ≥ 1 mm pendant la marche.'),
+      row('Accord sur la pluie de vendredi', comparable ? c.accord : 'inconnu', !comparable ? 'Au moins deux familles complètes sont nécessaires pour comparer.' : 'Écart de ' + nombre(c.ecartPoints) + ' points entre les familles, pour un cumul ≥ 1 mm au refuge de ' + hhmm(ev.fenetres.vendredi[0]) + ' à ' + hhmm(ev.fenetres.vendredi[1]) + ', marge comprise.'),
       row('Proximité de la sortie', c.horizon, 'Le repère reste limité à J−4 ou avant, modéré à J−3/J−2, puis peut devenir bon.'),
       h('p', { 'class': 'source-note' }, 'Ces niveaux sont des repères qualitatifs de l’application, sans calibration locale. Ils ne sont ni un pourcentage de fiabilité ni une garantie. La confiance reprend la plus prudente des deux lignes ; elle ne change pas quand vous masquez une courbe.'))
   }
@@ -68,7 +69,7 @@
     racine.appendChild(h('section', { 'class': 'section-intro' },
       h('p', { 'class': 'eyebrow' }, 'Préparer la sortie, garder de la marge'),
       h('h2', null, 'La météo, en un coup d’œil'),
-      h('p', null, 'Explorez les heures de marche, comparez les modèles et repérez le froid, la pluie et le vent au refuge, à 2 151 m.')))
+      h('p', null, 'Température dehors, pluie et vent au refuge des Oulettes, à 2 151 m. Comparez les modèles sur notre créneau, puis explorez les heures de la journée à ce même endroit.')))
     racine.appendChild(U.fraicheur(ctx))
     if (!snap || !ev) {
       racine.appendChild(h('section', { 'class': 'bloc tone-water' }, h('h2', null, 'Un relevé météo pour commencer'),
@@ -93,13 +94,24 @@
       const buttons = {}
       const daySwitch = h('div', { 'class': 'day-switch', role: 'group', 'aria-label': 'Jour de prévision' },
         ['vendredi', 'samedi'].map(d => h('button', { type: 'button', 'class': 'btn-secondary', 'aria-pressed': String(d === day),
-          onclick: () => { state.day = d; state.hour = null; renderDay() } }, d === 'vendredi' ? 'Vendredi 16 · montée' : 'Samedi 17 · descente')))
+          onclick: () => { state.day = d; state.hour = null; renderDay() } }, d === 'vendredi' ? 'Vendredi 16 · au refuge' : 'Samedi 17 · au refuge')))
       explorer.appendChild(daySwitch)
-      explorer.appendChild(h('h2', null, 'Pendant votre marche · ' + hhmm(win[0]) + '–' + hhmm(win[1])))
-      explorer.appendChild(h('p', { 'class': 'note' }, day === 'vendredi' ? 'La fenêtre suit votre départ et votre durée, avec une heure de marge à l’arrivée.' : 'Fenêtre de descente conservée : 8 h à 14 h.'))
+      explorer.appendChild(h('h2', null, 'Au refuge, sur notre créneau · ' + hhmm(win[0]) + '–' + hhmm(win[1])))
+      explorer.appendChild(h('div', { 'class': 'weather-summary-scope note' },
+        h('strong', null, day === 'vendredi' ? 'Marche prévue : ' + hhmm(ev.fenetres.depart) + '–' + hhmm(ev.fenetres.arrivee) + '.' : 'Descente prévue : 08:00–14:00.'),
+        ' ', day === 'vendredi' ? 'Les cartes ci-dessous résument la météo au refuge de ' + hhmm(win[0]) + ' à ' + hhmm(win[1]) + ' : jusqu’à l’arrivée, plus une heure de marge.' : 'Les cartes ci-dessous résument la météo au refuge de 08:00 à 14:00, sur le créneau de descente.'))
       const summary = h('div', { 'class': 'metric-grid' })
       explorer.appendChild(summary)
-      explorer.appendChild(h('h3', null, 'Explorez la journée heure par heure'))
+      explorer.appendChild(h('div', { 'class': 'weather-reading', 'aria-label': 'Comment lire la météo' },
+        h('article', { 'class': 'weather-reading-card tone-cold' }, h('h3', null, 'Une fourchette sur le créneau'),
+          h('p', { 'class': 'note' }, 'La température va de la plus basse à la plus haute, sur toutes les heures et tous les modèles actifs complets du créneau. C’est une plage possible, pas une moyenne.')),
+        h('article', { 'class': 'weather-reading-card tone-water' }, h('h3', null, 'Une heure avec le curseur'),
+          h('p', { 'class': 'note' }, 'À l’heure choisie, la fourchette compare les modèles pour le même instant au refuge. Le curseur change l’heure, pas notre position sur le sentier.')),
+        h('article', { 'class': 'weather-reading-card tone-sun' }, h('h3', null, 'Un seul point en montagne'),
+          h('p', { 'class': 'note' }, 'Ces valeurs décrivent l’extérieur au refuge, pas le dortoir ni chaque étape du chemin. Le lac, les passages à l’ombre et les crêtes peuvent avoir d’autres conditions.'))))
+      explorer.appendChild(h('h3', null, 'La journée au refuge, heure par heure'))
+      explorer.appendChild(h('p', { 'class': 'chart-location-caption note' },
+        (day === 'vendredi' ? 'Vendredi 16 · 06:00–21:00' : 'Samedi 17 · 06:00–15:00') + ' · dehors, à 2 151 m · heures de Paris. Déplacez le curseur ou touchez le graphique.'))
       const variables = h('div', { 'class': 'forecast-controls', role: 'group', 'aria-label': 'Information à tracer' }, Object.keys(VARIABLES).map(k => {
         const b = h('button', { type: 'button', 'class': 'btn-secondary', 'aria-pressed': String(state.variable === k),
           onclick: () => { state.variable = k; Object.keys(buttons).forEach(v => buttons[v].setAttribute('aria-pressed', String(v === k))); draw() } }, VARIABLES[k].label)
@@ -111,7 +123,7 @@
       const output = h('output', { 'class': 'forecast-hour', 'for': 'meteo-hour' }, hhmm(hours[hourIndex]))
       const slider = h('input', { id: 'meteo-hour', type: 'range', min: 0, max: hours.length - 1, step: 1, value: hourIndex,
         oninput: e => { hourIndex = Number(e.target.value); state.hour = hours[hourIndex]; draw() } })
-      explorer.appendChild(h('div', { 'class': 'forecast-slider' }, h('label', { 'for': 'meteo-hour' }, 'Choisir une heure'), output, slider))
+      explorer.appendChild(h('div', { 'class': 'forecast-slider' }, h('label', { 'for': 'meteo-hour' }, 'Heure au refuge'), output, slider))
       const detail = h('div', { 'class': 'forecast-detail', 'aria-live': 'polite' })
       explorer.appendChild(detail)
       const modelControls = h('div', { 'class': 'weather-key', role: 'group', 'aria-label': 'Modèles affichés' }, all.map((m, i) => {
@@ -126,9 +138,9 @@
         return b
       }))
       explorer.appendChild(modelControls)
-      explorer.appendChild(h('p', { 'class': 'source-note' }, 'Touchez un modèle pour comparer ses courbes. Le halo montre leur fourchette, sans représenter une probabilité. Les lignes s’interrompent quand des données manquent. Les valeurs horaires peuvent être interpolées par le fournisseur. Le fond jaune indique votre fenêtre de marche.'))
+      explorer.appendChild(h('p', { 'class': 'source-note' }, 'Touchez un modèle pour afficher ou masquer sa courbe : les cartes et les valeurs à l’heure choisie suivent cette sélection. Le halo montre l’écart entre les modèles actifs, pas une probabilité. Le fond jaune marque le créneau du résumé' + (day === 'vendredi' ? ', avec l’heure de marge après l’arrivée' : ', de 08:00 à 14:00') + '. Les lignes s’interrompent quand des données manquent. Les valeurs horaires peuvent être interpolées par le fournisseur.'))
       const risk = h('div', { 'class': 'metric-grid' }, riskCard(ev, day, 'I8', 'Un peu de pluie ?', 'rain', 'water'), riskCard(ev, day, 'I1', 'Pluie plus soutenue ?', 'rain', 'sun'))
-      explorer.appendChild(h('h3', null, 'Les scénarios de pluie sur la marche'))
+      explorer.appendChild(h('h3', null, 'Les scénarios de pluie au refuge · ' + hhmm(win[0]) + '–' + hhmm(win[1])))
       explorer.appendChild(risk)
       const ind = indicateur(ev, day, 'I3'), p = ind && ind.valeur
       explorer.appendChild(h('p', { 'class': 'note' }, 'Ces pourcentages viennent des ensembles : de nombreuses variantes de prévision, regroupées par famille. Ils sont indépendants des courbes choisies ci-dessus. 0 % signifie qu’aucun scénario n’atteint ce seuil dans ce relevé, pas une absence garantie de pluie.'))
@@ -139,15 +151,17 @@
       function draw() {
         const sum = W.resume(snap, win[0], win[1], selected), at = W.at(snap, hours[hourIndex], selected), cfg = VARIABLES[state.variable]
         U.vider(summary)
-        summary.appendChild(U.metric('Température dehors', span(sum.tempMin, sum.tempMax, '°C', 0), count(sum.tempModels) + ' · au refuge, pas dans le dortoir', 'temperature', 'cold'))
-        summary.appendChild(U.metric('Rafales les plus fortes', sum.gustMax === null ? 'Non disponibles' : nombre(sum.gustMax) + ' km/h', count(sum.gustModels) + ' · vent à 10 m, crêtes plus exposées', 'wind', 'forest'))
-        summary.appendChild(U.metric('Cumul de pluie', span(sum.rainMin, sum.rainMax, 'mm', 1), count(sum.rainModels) + ' · total sur la fenêtre', 'rain', 'water'))
+        const period = hhmm(win[0]) + '–' + hhmm(win[1])
+        summary.appendChild(U.metric('Température dehors au refuge', span(sum.tempMin, sum.tempMax, '°C', 1), period + ' · extrêmes des heures et modèles · ' + count(sum.tempModels), 'thermometer', 'cold'))
+        summary.appendChild(U.metric('Rafales au refuge', sum.gustMax === null ? 'Non disponibles' : nombre(sum.gustMax) + ' km/h', period + ' · maximum · ' + count(sum.gustModels) + ' · vent à 10 m', 'wind', 'forest'))
+        summary.appendChild(U.metric('Cumul de pluie au refuge', span(sum.rainMin, sum.rainMax, 'mm', 1), period + ' · total par modèle · ' + count(sum.rainModels), 'rain', 'water'))
         output.textContent = hhmm(hours[hourIndex]); slider.value = hourIndex
-        slider.setAttribute('aria-valuetext', hhmm(hours[hourIndex]))
+        slider.setAttribute('aria-valuetext', hhmm(hours[hourIndex]) + ' au refuge')
         U.vider(detail)
-        detail.appendChild(h('strong', null, 'À ' + hhmm(hours[hourIndex]) + ' au refuge'))
-        detail.appendChild(h('p', null, span(at.tempMin, at.tempMax, '°C', 0) + ' · pluie ' + span(at.rainMin, at.rainMax, 'mm sur l’heure', 1) +
+        detail.appendChild(h('strong', null, 'Dehors au refuge, à ' + hhmm(hours[hourIndex])))
+        detail.appendChild(h('p', null, span(at.tempMin, at.tempMax, '°C', 1) + ' · pluie ' + span(at.rainMin, at.rainMax, 'mm sur l’heure', 1) +
           ' · rafales ' + (at.gustMax === null ? 'non disponibles' : 'jusqu’à ' + nombre(at.gustMax) + ' km/h')))
+        detail.appendChild(h('p', { 'class': 'source-note' }, 'Fourchette entre les modèles actifs pour cette seule heure. Elle peut être plus étroite que celle du créneau complet ci-dessus.'))
         const curves = all.map((m, i) => ({ id: m.id, color: modelColor(i), values: hours.map(local => {
           const idx = W.indices(snap, local, local)
           const v = idx && m.data[state.variable] && m.data[state.variable][idx[0]]
@@ -164,7 +178,7 @@
         const margin = (hi - lo) * 0.08; hi += margin; if (state.variable === 'temp') lo -= margin
         const x = i => left + i * (right - left) / Math.max(1, hours.length - 1)
         const y = v => bottom - (v - lo) * (bottom - top) / (hi - lo)
-        const svg = s('svg', { viewBox: '0 0 ' + width + ' ' + height, width: width, height: height, style: 'display:block;width:100%;height:auto', role: 'img', 'aria-label': cfg.label + ' par heure, ' + day + '. Les détails sont consultables avec le curseur horaire.' })
+        const svg = s('svg', { viewBox: '0 0 ' + width + ' ' + height, width: width, height: height, style: 'display:block;width:100%;height:auto', role: 'img', 'aria-label': cfg.label + ' dehors au refuge, ' + day + ', de ' + hhmm(hours[0]) + ' à ' + hhmm(hours[hours.length - 1]) + '. Le fond jaune indique le créneau ' + period + (day === 'vendredi' ? ', marge comprise' : '') + '. Les détails sont consultables avec le curseur horaire.' })
         svg.appendChild(s('title', null, cfg.label + ' au refuge, ' + day))
         const walk = hours.map((local, i) => local >= win[0] && local <= win[1] ? i : -1).filter(i => i >= 0)
         if (walk.length) svg.appendChild(s('rect', { x: x(walk[0]), y: top, width: Math.max(1, x(walk[walk.length - 1]) - x(walk[0])), height: bottom - top, fill: 'var(--sun)', 'fill-opacity': 0.25 }))

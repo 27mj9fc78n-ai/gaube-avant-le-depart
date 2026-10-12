@@ -4,8 +4,8 @@ Application statique pour préparer une randonnée les 16–17 octobre 2026 aux 
 
 Un accueil photographique immersif mène directement à la météo et à la randonnée. Les quatre pages pratiques utilisent un en-tête compact ; les liens directs `#decision`, `#meteo`, `#refuge` et `#sac` restent disponibles. Le logo ramène à `#accueil`. Les fonds ivoire et sable, avec une encre ardoise et des touches bleu lac, corail et ambre, gardent les informations lisibles.
 
-- **La rando** : températures à l’arrivée et au départ du samedi, pluie et rafales sur la marche, horaires ajustables, repères d’itinéraire et conseils sourcés.
-- **Météo** : graphique horaire interactif de température, pluie et rafales, sélection des modèles, fourchette et confiance qualitative expliquée. Une valeur manquante ne devient jamais zéro ; les relevés anciens restent identifiés.
+- **La rando** : températures et vent au refuge sur le créneau préparé, horaires ajustables et cheminement interactif. Cinq étapes cliquables présentent les repères et vérifications utiles ; le retour inverse leur ordre. Le schéma ne déduit ni position GPS ni heure de passage.
+- **Météo** : un point fixe dehors au refuge à 2 151 m. Les cartes résument le créneau choisi, jusqu’à l’arrivée plus une heure de marge vendredi ; les courbes permettent de consulter la journée au refuge et le curseur une heure précise. La fourchette rassemble les extrêmes des heures et modèles actifs, pas une température moyenne ni une météo sur tout le sentier. Les modèles, les probabilités de pluie et la confiance qualitative restent distincts.
 - **Refuge** : photo datée, dîner, arrivée, dortoirs, eau, chauffage à confirmer, questions utiles et notes locales facultatives.
 - **Mon sac** : objets cochés, grammes ajustables, eau et repas, sac vide, objets portés séparés, objets personnels et comparaison facultative au poids corporel. Les exemples fabricants et les masses estimées sont identifiés. Les repères généraux de charge valent pour femmes et hommes, sans garantir le confort d’une personne.
 

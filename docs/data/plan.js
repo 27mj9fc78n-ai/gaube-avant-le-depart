@@ -61,6 +61,37 @@
     { nom: 'Lac de Gaube', altitude: '1 725', texte: 'Une pause et un point sur le groupe', icon: 'water' },
     { nom: 'Refuge des Oulettes', altitude: '2 151', texte: 'Arriver avant 18 h', icon: 'house' }
   ]
+  /* Repères du topo officiel, dans l’ordre de la montée. Aucune localisation en direct,
+     distance entre points ni heure de passage n’est déduite de ce schéma.
+     Les actions ci-dessous sont des conseils de préparation, pas des observations du terrain. */
+  var TOPO = 'https://geotrek65admin.openig.org/api/fr/treks/10150/le-refuge-des-oulettes-au-pied-du-vignemale_booklet.pdf?portal=2'
+  var checkpoints = [
+    { id: 'puntas', name: 'Puntas · Pont d’Espagne', label: 'Le départ', altitude: 1460, kind: 'start', icon: 'route',
+      description: 'Départ à pied depuis le parking du Puntas. Le sentier du lac monte d’abord dans la forêt.',
+      watch: ['Groupe prêt', 'Eau et carte', 'Premier effort'],
+      action: ['Faire le point sur les conditions connues, les sacs et l’horaire avant de partir.', 'Commencer doucement, avec eau, veste et carte à portée de main.'],
+      source: TOPO, sourceLabel: 'Topo officiel · Vallées de Gavarnie', checkedOn: '2026-10-12', adviceLabel: 'À vérifier ici', adviceSource: PARC },
+    { id: 'lac-gaube', name: 'Lac de Gaube', label: 'Le lac', altitude: 1725, kind: 'lake', icon: 'water',
+      description: 'Le chemin longe le lac après la passerelle du déversoir. Il traverse ensuite des secteurs rocheux vers la vallée.',
+      watch: ['Énergie du groupe', 'Pause au froid', 'Eau restante'],
+      action: ['Boire, manger un encas et vérifier comment chacun se sent avant de poursuivre.', 'Se couvrir à la pause ; ne pas compter sur l’eau du lac comme eau potable.'],
+      source: TOPO, sourceLabel: 'Topo officiel · Vallées de Gavarnie', checkedOn: '2026-10-12', adviceLabel: 'À vérifier ici', adviceSource: PARC },
+    { id: 'pinet', name: 'Cabane du Pinet · vallée', label: 'La vallée', altitude: null, kind: 'valley', icon: 'footprints',
+      description: 'Après le lac, le sentier passe près de la cabane du Pinet et continue le long du gave. Des passerelles jalonnent la montée.',
+      watch: ['Sol et passerelles', 'Rythme réel', 'Visibilité'],
+      action: ['Observer l’état du sentier et des passages ; pluie, neige ou gel peuvent ralentir la marche.', 'Rester sur le sentier, sans couper les lacets. Revoir ensemble la suite si les conditions se dégradent.'],
+      source: TOPO, sourceLabel: 'Topo officiel · Vallées de Gavarnie', checkedOn: '2026-10-12', adviceLabel: 'À vérifier ici', adviceSource: PARC },
+    { id: 'petites-oulettes', name: 'Plateau des petites Oulettes', label: 'Le plateau', altitude: 2050, kind: 'plateau', icon: 'mountain',
+      description: 'Le plateau des petites Oulettes précède le dernier ressaut vers le refuge, face au massif du Vignemale.',
+      watch: ['Chaleur', 'Fatigue', 'Marge horaire'],
+      action: ['Ajuster les couches au froid et au vent réellement ressentis.', 'Faire le point sur la fatigue et l’heure réelle : le refuge n’est pas encore atteint.'],
+      source: TOPO, sourceLabel: 'Topo officiel · Vallées de Gavarnie', checkedOn: '2026-10-12', adviceLabel: 'À vérifier ici', adviceSource: PARC },
+    { id: 'refuge', name: 'Refuge des Oulettes de Gaube', label: 'Le refuge', altitude: 2151, kind: 'refuge', icon: 'house',
+      description: 'Le refuge termine la montée. Le retour vers le Puntas reprend le même itinéraire.',
+      watch: ['Arrivée avant 18 h', 'Vêtements secs', 'Conditions du retour'],
+      action: ['Prévenir le refuge en cas de retard ; le dîner est annoncé à 19 h.', 'Se changer, demander où remplir les gourdes et revoir avec le gardien les conditions de la descente.'],
+      source: TOPO, sourceLabel: 'Topo officiel · Vallées de Gavarnie', checkedOn: '2026-10-12', adviceLabel: 'À vérifier ici', adviceSource: FFCAM + 'en-ete.html' }
+  ]
   var conseils = [
     { titre: 'Le rythme de tout le monde', texte: 'Partir tranquillement, rester ensemble et garder du temps pour les pauses. Une personne fatiguée doit pouvoir le dire tôt.', icon: 'footprints', source: PARC, sourceLabel: 'Parc national des Pyrénées' },
     { titre: 'Chaud, sec et accessible', texte: 'Garder veste, couche chaude, eau et frontale à portée de main. Protéger les vêtements secs pour la soirée au refuge.', icon: 'shirt', source: FFCAM + 'en-ete.html', sourceLabel: 'Conseils du refuge' },
@@ -70,7 +101,7 @@
     { id: 'montagne', libelle: 'Bulletin montagne Pyrénées', url: 'https://meteofrance.com/meteo-montagne/pyrenees' },
     { id: 'refuge', libelle: 'Site officiel du refuge', url: FFCAM }, { id: 'parc', libelle: 'Préparer la randonnée', url: PARC }]
   var contacts = [{ nom: 'Secours européens', numero: '112', officiel: true }, { nom: refuge.nom, numero: refuge.tel, affiche: refuge.telAffiche, officiel: true }]
-  var api = { refuge: refuge, soleil: soleil, faits: faits, questionsGardien: questionsGardien, checklist: checklist, calendrier: calendrier, etapes: etapes, conseils: conseils, liens: liens, contacts: contacts }
+  var api = { refuge: refuge, soleil: soleil, faits: faits, questionsGardien: questionsGardien, checklist: checklist, calendrier: calendrier, etapes: etapes, checkpoints: checkpoints, conseils: conseils, liens: liens, contacts: contacts }
   if (typeof module !== 'undefined' && module.exports) module.exports = api
   else root.RGN_PLAN = api
 })(typeof self !== 'undefined' ? self : this)
