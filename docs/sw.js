@@ -11,7 +11,7 @@ const CACHE = 'rgn-' + V.app
 const BASE = self.registration.scope
 const URLS = V.precache.map(u => new URL(u, BASE).href)
 const DELAI_MS = self.RGN_DELAI_MS || 3000
-const RESEAU_D_ABORD = ['index.html', 'version.js', 'data/plan.js', 'data/snapshot.js', 'data/sejour.js', 'data/meteo-sejour.js']
+const RESEAU_D_ABORD = ['index.html', 'version.js', 'data/plan.js', 'data/snapshot.js', 'data/sejour.js', 'data/sejour-cartes.js', 'data/meteo-sejour.js']
 
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => Promise.all(URLS.map(u => cache.add(new Request(u, { cache: 'reload' }))))))

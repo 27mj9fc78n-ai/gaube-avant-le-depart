@@ -27,7 +27,7 @@ test('les trois trajets voiture sont distincts et gardent calcul, provenance et 
 })
 test('le site charge Leaflet localement et garde les données de carte hors ligne',()=>{
   const html=readFileSync(new URL('../docs/index.html',import.meta.url),'utf8')
-  assert.match(html,/vendor\/leaflet\/leaflet.js/);assert.match(html,/js\/cartes.js/)
+  assert.match(html,/vendor\/leaflet\/leaflet.js/);assert.match(html,/js\/cartes.js/);assert.match(html,/js\/ui-sejour-base.js/);assert.match(html,/js\/sejour-cartes.js/)
   const sw=readFileSync(new URL('../docs/sw.js',import.meta.url),'utf8')
   assert.match(sw,/url.origin !== self.location.origin/,'les tuiles distantes ne sont pas précachées')
   const js=readFileSync(new URL('../docs/js/cartes.js',import.meta.url),'utf8')
