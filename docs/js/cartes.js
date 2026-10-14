@@ -79,7 +79,7 @@
         timeline.append(item(d.replace(':',' h '),'Toulouse → Ignaux',duration(seconds)+' de conduite estimée + '+m+' min de marge.'),item(add(d,Math.round(seconds/60)+m),'Arrivée estimée au village du chalet','L’heure d’accès au logement doit être confirmée dans la réservation.'),item('Ensuite','La randonnée se décide selon l’arrivée','Le passage au chalet ajoute un détour. Aucun départ de randonnée n’est calculé sans connaître la remise des clés.'))
       }else{
         const start=add(d,Math.round(data.seconds/60)+m),low=add(d,Math.round(data.seconds/60)+m+270),high=add(d,Math.round(data.seconds/60)+m+300)
-        timeline.append(item(d.replace(':',' h '),'Toulouse → La Restanque',duration(data.seconds)+' de conduite estimée + '+m+' min de marge.'),item(start,'Début de marche estimé','Sous réserve d’accès au parking. Les derniers kilomètres de piste peuvent changer l’organisation.'),item(low+'–'+high,'Retour estimé au parking','Budget de 4 h 30 à 5 h sur place, pauses comprises.'),item('Après','La Restanque → Ignaux',duration(T.routes['depart-chalet'].seconds)+' de conduite estimée, puis les courses et le chalet.'))
+        timeline.append(item(d.replace(':',' h '),'Toulouse → La Restanque',duration(data.seconds)+' de conduite estimée + '+m+' min de marge.'),item(start,'Début de marche estimé','Sous réserve d’accès au parking. Les derniers kilomètres de piste peuvent changer l’organisation.'),item(low+'–'+high,'Retour estimé au parking','Temps sur place : 4 h 30 à 5 h, pauses comprises.'),item('Après','La Restanque → Ignaux',duration(T.routes['depart-chalet'].seconds)+' de conduite estimée, puis les courses et le chalet.'))
       }
     }
     update();box.append(fields,timeline,h('p',{class:'trip-note'},'Ces horaires sont un outil d’organisation. Ils ne tiennent compte ni du trafic en direct, ni d’un parking déplacé, ni de notre rythme réel.'))
@@ -93,12 +93,21 @@
     const controls=h('div',{class:'trip-map-controls'}),progress=h('p',{class:'trip-map-progress',id:'hike-progress','aria-live':'polite'}),info=h('article',{class:'trip-map-info',id:'hike-info','aria-live':'polite'}),list=h('ol',{class:'trip-hike-checks','aria-label':'Étapes de la randonnée à cocher'})
     const switcher=h('div',{class:'trip-switch','aria-label':'Sens de la randonnée'})
     const gpsStatus=h('p',{class:'trip-note',id:'hike-gps-status',role:'status'},'Les coches sont manuelles. La carte ne déduit pas où nous sommes.')
+    const progressBar=h('progress',{class:'trip-hike-progressbar',max:P.stages.length,value:0,'aria-label':'Étapes parcourues dans le sens choisi'})
+    const panelSwitch=h('nav',{class:'trip-mobile-panels','aria-label':'Affichage sur téléphone'})
+    let panel=ctx.prefs.get('hike.mobilePanel','carte');if(!['carte','etapes'].includes(panel))panel='carte'
     let entry=null,line=null,markers={},location=null,accuracy=null
     const stages=()=>direction==='aller'?P.stages:P.stages.slice().reverse()
     const key=()=> 'hike.checked.'+P.id+'.'+direction
     const checked=()=>{const c=ctx.prefs.get(key(),{});return c&&typeof c==='object'?c:{}}
     const loc=p=>G.points.find(point=>point.id===stagePoint[p.id]).latlon
     const fit=()=>{if(entry&&line)entry.map.fitBounds(line.getBounds(),{padding:[45,40]})}
+    function selectPanel(value){
+      panel=value;ctx.prefs.set('hike.mobilePanel',value);box.dataset.mobilePanel=value
+      panelSwitch.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.hikePanel===value)))
+      if(entry&&value==='carte')root.requestAnimationFrame(()=>{entry.map.invalidateSize();if(line)fit()})
+    }
+    ;[['carte','Carte'],['etapes','Étapes']].forEach(([value,label])=>panelSwitch.append(h('button',{type:'button','data-hike-panel':value,'aria-pressed':String(panel===value),onclick:()=>selectPanel(value)},label)))
     function show(p,zoom=false){
       selected=p.id;ctx.prefs.set('hike.selected',p.id)
       list.querySelectorAll('[data-stage]').forEach(el=>el.classList.toggle('is-selected',el.dataset.stage===p.id))
@@ -117,6 +126,7 @@
       const focused=document.activeElement?.id
       const c=checked(),ordered=stages(),count=ordered.filter(p=>c[p.id]===true).length
       progress.textContent=count+' / '+ordered.length+' étapes cochées '+(direction==='aller'?'à l’aller':'au retour')+' · sur ce téléphone'
+      progressBar.value=count
       list.replaceChildren(...ordered.map((p,i)=>h('li',{'data-stage':p.id,class:(c[p.id]?'is-done ':'')+(selected===p.id?'is-selected':'')},h('label',null,h('input',{type:'checkbox',id:'hike-check-'+p.id,'aria-label':(direction==='aller'?'Passé à l’aller : ':'Passé au retour : ')+p.name,checked:c[p.id]===true,onchange:e=>toggle(p,e.target.checked)})),h('button',{type:'button',class:'trip-hike-point',onclick:()=>show(p,true)},h('span',{class:'trip-hike-number'},i+1),h('span',null,h('strong',null,p.name),h('small',null,number(p.altitude)+' m · '+(direction==='aller'?p.km:P.route.distance-p.km).toLocaleString('fr-FR',{maximumFractionDigits:2})+' km'))))))
       switcher.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.direction===direction)))
       if(entry){
@@ -141,7 +151,8 @@
         gpsStatus.textContent='Position du téléphone · précision annoncée ± '+metres+' m. '+(nearest>250?'Position éloignée du tracé affiché. ':'')+'Les coches restent manuelles.'
       },err=>{if(!shellNode.isConnected)return;gpsStatus.textContent=err.code===1?'Localisation refusée. La carte et les étapes restent utilisables.':'Position indisponible. Réessayer dehors avec le GPS activé.'},{enableHighAccuracy:true,timeout:15000,maximumAge:30000})
     }
-    box.append(switcher,progress,h('div',{class:'trip-hike-layout'},h('div',null,shellNode,controls,gpsStatus,h('p',{class:'trip-note'},'Tracé ouvert des sentiers et contours des lacs. Le fond détaillé demande du réseau ; le tracé et les points restent disponibles hors ligne.')),h('div',{class:'trip-hike-sidebar'},list,info)),h('p',{class:'trip-note'},'Carte issue des chemins OpenStreetMap, vérifiée le 14 octobre. Environ 7,97 km sur cette géométrie ; la fiche du parcours annonce 8,01 km. Elle ne confirme pas l’état du terrain ni l’accès routier. ',external('data/rando-carte.json','Données et provenance')))
+    box.append(switcher,panelSwitch,progress,progressBar,h('div',{class:'trip-hike-layout'},h('div',{class:'trip-hike-map-column'},shellNode,controls,gpsStatus,h('p',{class:'trip-note'},'Fond détaillé avec du réseau. Le tracé et les étapes restent consultables hors ligne.')),h('div',{class:'trip-hike-sidebar'},list,info)),h('p',{class:'trip-note'},'Carte issue des chemins OpenStreetMap, vérifiée le 14 octobre. Environ 7,97 km sur cette géométrie ; la fiche du parcours annonce 8,01 km. Elle ne confirme pas l’état du terrain ni l’accès routier. ',external('data/rando-carte.json','Données et provenance')))
+    box.dataset.mobilePanel=panel
     paint()
     pending.push(()=>{
       if(!document.getElementById(id))return

@@ -4,7 +4,7 @@
   const source = 'https://www.visorando.com/randonnee-les-trois-etangs-de-rabassoles/'
   const api = {
     id: 'rabassoles-2026-10-16', checked: '2026-10-14', dates: ['2026-10-16', '2026-10-17'],
-    route: { name: 'Les trois étangs de Rabassoles', distance: 8.01, ascent: 423, top: 1995, duration: '3 h 30', budget: '4 h 30 à 5 h avec les pauses', source, parking: [42.702914, 2.007352] },
+    route: { name: 'Les trois étangs de Rabassoles', distance: 8.01, ascent: 423, top: 1995, duration: '3 h 30', timeWithBreaks: '4 h 30 à 5 h avec les pauses', source, parking: [42.702914, 2.007352] },
     lodging: { name: 'Le Petit Chalet', village: 'Ignaux', source: 'https://www.airbnb.fr/rooms/50411198', note: 'Le point météo représente le village, vers 1 000 m. L’adresse exacte et les consignes d’arrivée restent dans la réservation.' },
     points: [
       { id: 'depart', name: 'Départ · La Restanque', short: 'Départ', lat: 42.702914, lon: 2.007352, elevation: 1572, note: 'Au parking ; prévision ponctuelle.' },
