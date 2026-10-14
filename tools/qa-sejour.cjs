@@ -1,0 +1,72 @@
+// Vérification fonctionnelle et visuelle du séjour. Sorties conservées hors publication.
+const {createRequire}=require('node:module'),{mkdirSync,writeFileSync}=require('node:fs')
+const pkg=process.env.RANDO_NODE_MODULES
+if(!pkg)throw Error('Indiquer le chemin des dépendances dans RANDO_NODE_MODULES')
+const {chromium}=createRequire(pkg+'/package.json')('playwright')
+const assert=require('node:assert/strict')
+;(async()=>{
+  mkdirSync('_prive/qa-sejour',{recursive:true})
+  const browser=await chromium.launch({channel:'chrome',headless:true})
+  const report=[]
+  try {
+    for(const viewport of [{width:1440,height:1000},{width:390,height:844},{width:320,height:740}]){
+      const ctx=await browser.newContext({viewport}),page=await ctx.newPage(),errors=[]
+      page.on('pageerror',e=>errors.push(e.message))
+      await page.goto('http://127.0.0.1:8137/',{waitUntil:'networkidle'})
+      for(const view of ['accueil','rando','meteo','chalet','sac']){
+        await page.locator('[data-view-link="'+view+'"]').click()
+        await page.waitForTimeout(100)
+        assert(await page.locator('#trip-content h1').count()>0,'page visible '+view)
+        const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1)
+        assert(!overflow,'débordement '+view+' '+viewport.width)
+        assert(!/Gaube|Oulettes|Vignemale/.test(await page.locator('#trip-content').innerText()),'ancienne destination '+view)
+        const missing=await page.locator('img').evaluateAll(imgs=>imgs.filter(i=>i.complete&&i.naturalWidth===0).map(i=>i.src))
+        assert.equal(missing.length,0,'photos présentes')
+        if(viewport.width!==320){
+          await page.locator('img').evaluateAll(imgs=>imgs.forEach(i=>i.loading='eager'))
+          await page.waitForFunction(()=>Array.from(document.images).every(i=>i.complete&&i.naturalWidth>0))
+          await page.locator('img').evaluateAll(imgs=>Promise.all(imgs.map(i=>i.decode())))
+          await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))))
+          await page.screenshot({path:'_prive/qa-sejour/'+view+'-'+viewport.width+'.png',fullPage:true})
+        }
+        report.push({width:viewport.width,view,overflow,photos:await page.locator('img').count()})
+      }
+      await page.locator('[data-view-link="meteo"]').click()
+      await page.getByRole('button',{name:'Au chalet',exact:true}).click()
+      await page.getByRole('button',{name:'Samedi 17 octobre',exact:true}).click()
+      await page.locator('#weather-slider').fill('3')
+      assert.match(await page.locator('#weather-hour-title').innerText(),/03 h.*samedi/)
+      assert.match(await page.locator('#trip-content').innerText(),/Ignaux/)
+      await page.locator('[data-view-link="chalet"]').click()
+      await page.locator('#chalet-notes').fill('Penser au petit-déjeuner')
+      await page.locator('input[type=checkbox]').first().check()
+      await page.reload({waitUntil:'networkidle'})
+      assert.equal(await page.locator('#chalet-notes').inputValue(),'Penser au petit-déjeuner')
+      assert(await page.locator('input[type=checkbox]').first().isChecked())
+      await page.locator('[data-view-link="sac"]').click()
+      assert.equal(await page.locator('#pack-check-viande').count(),0,'pas de drap-sac de refuge')
+      const before=await page.locator('.pack-live-load strong').innerText()
+      await page.locator('details.checklist-group').filter({has:page.locator('#pack-check-eau')}).locator('summary').first().click()
+      await page.locator('#pack-check-eau').check()
+      assert.notEqual(await page.locator('.pack-live-load strong').innerText(),before,'poids recalculé')
+      await page.locator('#btn-secours').click()
+      assert(await page.locator('#dlg-secours').isVisible())
+      await page.getByRole('button',{name:'Fermer',exact:true}).click()
+      await page.evaluate(()=>navigator.serviceWorker.ready)
+      await page.reload({waitUntil:'networkidle'})
+      await ctx.setOffline(true)
+      await page.reload({waitUntil:'domcontentloaded'})
+      await page.locator('[data-view-link="rando"]').click()
+      await page.locator('.trip-step').first().waitFor()
+      assert.equal(await page.locator('.trip-step').count(),6,'étapes disponibles hors ligne')
+      await page.locator('[data-view-link="meteo"]').click()
+      await page.locator('#weather-hour').waitFor()
+      assert.match(await page.locator('#trip-content').innerText(),/°C/)
+      assert.deepEqual(errors,[],'aucune exception navigateur')
+      report.push({width:viewport.width,slider:true,persistence:true,pack:true,offline:true,errors})
+      await ctx.close()
+    }
+    writeFileSync('_prive/qa-sejour/resultats.json',JSON.stringify(report,null,2))
+    console.log(JSON.stringify(report,null,2))
+  } finally { await browser.close() }
+})().catch(e=>{console.error(e);process.exitCode=1})

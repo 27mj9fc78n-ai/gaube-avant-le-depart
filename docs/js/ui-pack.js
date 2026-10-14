@@ -64,11 +64,11 @@
     const ratio = summary.ratio
     return h('section', { 'class': 'bloc pack-comparison tone-sun', 'aria-labelledby': 'pack-compare-title' },
       h('h2', { id: 'pack-compare-title' }, 'Léger, mais équipé pour le froid'),
-      h('p', null, 'Pour une nuit en refuge, le sac le plus léger possible, sans retirer eau, chaleur ni équipement d’urgence. L’essayer chargé avant la sortie et répartir le matériel commun selon le confort de chacun.'),
+      h('p', null, 'Pour la randonnée à la journée, le sac le plus léger possible, sans retirer eau, chaleur ni équipement d’urgence. L’essayer chargé avant la sortie et répartir le matériel commun selon le confort de chacun.'),
       ratio !== null ? h('div', { 'class': 'metric-grid' },
         U.metric('Ma charge estimée', nombre(ratio, 1) + ' %', 'de mon poids corporel, objets cochés', 'backpack', ratio > 20 ? 'cold' : 'water'),
         U.metric('Repère journée · 10 %', kg(summary.dayReferenceGrams), 'Repère général de REI', 'footprints', 'forest'),
-        U.metric('Repère itinérance · 20 %', kg(summary.trekReferenceGrams), 'Pour l’autonomie ; pas un objectif pour le refuge', 'mountain', 'sun')) :
+        U.metric('Repère itinérance · 20 %', kg(summary.trekReferenceGrams), 'Pour l’autonomie ; pas un objectif pour notre journée', 'mountain', 'sun')) :
         h('p', { 'class': 'note' }, 'Renseigner son poids ci-dessus (facultatif) pour voir les repères généraux de 10 % et 20 %.'),
       ratio !== null && ratio > 20 ? h('p', { 'class': 'note' }, 'La charge cochée dépasse le repère général de 20 %. Revoir les doublons, les objets de confort et la répartition du matériel, en conservant les essentiels.') : null,
       h('details', null, h('summary', null, 'À propos de ces pourcentages'),
@@ -147,9 +147,9 @@
         h('li', null, h('strong', null, 'Une vraie pesée. '), 'Peser le sac complet, eau et repas compris : la balance reste le meilleur contrôle.'),
         h('li', null, h('strong', null, 'Facile à attraper. '), 'Veste, eau, encas et frontale à portée de main ; vêtements secs protégés.'),
         h('li', null, h('strong', null, 'Pas de doublons inutiles. '), 'Répartir ce qui peut être commun, en gardant chacun sa lumière, son eau et sa chaleur.'),
-        h('li', null, h('strong', null, 'Refuge gardé à confirmer. '), 'Si l’accueil ou les repas changent, cette liste doit changer aussi : ne pas compter sur un drap-sac seul pour dormir au froid.')),
+        h('li', null, h('strong', null, 'Le chalet se prépare à part. '), 'Les affaires de nuit, la toilette et les courses se préparent dans la page du chalet ; elles restent hors du sac de marche.')),
       h('details', { 'class': 'pack-reference-list' }, h('summary', null, 'D’où viennent les conseils et les poids ?'),
-        h('p', { 'class': 'source-note' }, 'Sources consultées le 11 octobre 2026. La liste FFCAM de Bayssellance sert de référence de préparation en refuge, et non de preuve des équipements fournis aux Oulettes. Les exemples de matériel servent uniquement à expliquer les grammes.'),
+        h('p', { 'class': 'source-note' }, 'Sources consultées le 11 octobre 2026. La liste FFCAM de Bayssellance sert de référence de préparation en refuge, les conseils d’équipement restent à adapter à notre sortie. Les exemples de matériel servent uniquement à expliquer les grammes.'),
         h('ul', null, Object.keys(D.sources).map(key => h('li', null, U.link(D.sources[key].url, D.sources[key].label)))),
         h('p', { 'class': 'source-note' }, 'Les autres poids sont des estimations pratiques pour commencer : ils ne décrivent pas le matériel, la taille de vêtement ni les besoins de chacun.')))
   }

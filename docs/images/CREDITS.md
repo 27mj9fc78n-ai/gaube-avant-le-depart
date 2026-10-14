@@ -33,3 +33,16 @@ Ces licences portent sur les photographies concernées ; elles ne changent pas l
 - WebP du refuge : `8432d4a153402a422ad537f1fb4a49d6c420391a97584ddf8cedf595df42a8b0`.
 
 Les originaux ont été contrôlés puis retirés du dossier public pour garder l’application légère. Leurs liens restent disponibles ci-dessus.
+
+## Photos du séjour Rabassoles — 14 octobre 2026
+
+Toutes les photos ci-dessous sont de Lucas Destrem, prises le 26 octobre 2019. Licence CC BY-SA 4.0 : https://creativecommons.org/licenses/by-sa/4.0/
+
+Originaux 3456 × 2304 ; versions locales 1920 × 1280, redimensionnées et converties en WebP. Les versions adaptées conservent la licence CC BY-SA 4.0.
+
+- `rabassoles-panorama.webp` : https://commons.wikimedia.org/wiki/File:Rabassoles.jpg
+- `rabassoles-bas.webp` : https://commons.wikimedia.org/wiki/File:%C3%89tang_de_Rabassoles,_Donezan.jpg
+- `rabassoles-bleu.webp` : https://commons.wikimedia.org/wiki/File:%C3%89tang_Bleu,_Donezan.jpg
+- `rabassoles-noir.webp` : https://commons.wikimedia.org/wiki/File:%C3%89tang_Noir,_Donezan_(1).jpg
+
+Le panorama est pris depuis les hauteurs. Il illustre le massif et ne représente pas une étape exacte de l’aller-retour depuis la Restanque. Ces photos ne décrivent pas les conditions météorologiques de 2026.

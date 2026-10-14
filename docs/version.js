@@ -3,15 +3,15 @@
    (css, js, icônes, manifeste) : ne pas l'éditer à la main, un test échoue si elle est périmée.
    `contenu` = date de vérification des faits du refuge (data/plan.js), affichée en pied de page. */
 self.RGN_VERSION = {
-  app: 'v1-68a2e604',
-  contenu: '2026-10-11',
+  app: 'v1-b6cfcca1',
+  contenu: '2026-10-14',
   precache: [
     './', 'index.html', 'manifest.webmanifest', 'version.js',
-    'css/echappee.css',
-    'data/plan.js', 'data/photos.js', 'data/pack.js', 'data/snapshot.js',
-    'js/stats.js', 'js/meteo.js', 'js/decision.js', 'js/weather-view.js', 'js/pack.js', 'js/store.js',
-    'js/ui-base.js', 'js/ui-parcours.js', 'js/ui-meteo-reperes.js', 'js/ui-hut.js', 'js/ui-pack.js', 'js/echappee.js',
+    'css/echappee.css', 'css/sejour.css',
+    'data/sejour.js', 'data/photos-sejour.js', 'data/pack.js', 'data/pack-jour.js', 'data/meteo-sejour.js',
+    'js/pack.js', 'js/store.js', 'js/meteo-sejour.js',
+    'js/ui-base.js', 'js/ui-pack.js', 'js/sejour.js',
     'icons/icon-192.png', 'icons/icon-512.png', 'icons/maskable-512.png', 'icons/apple-touch-icon.png',
-    'images/lac-gaube.webp', 'images/refuge-oulettes.webp'
+    'images/rabassoles-panorama.webp', 'images/rabassoles-bas.webp', 'images/rabassoles-bleu.webp', 'images/rabassoles-noir.webp'
   ]
 }
