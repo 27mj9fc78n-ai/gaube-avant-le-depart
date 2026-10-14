@@ -2,7 +2,7 @@
 (function(root){
   'use strict'
   const U=root.RGN_UI,{h}=U,T=root.RGN_TRAJETS,G=root.RGN_RANDO_CARTE,P=root.RGN_SEJOUR
-  const pending=[],live=[]
+  const pending=[],live=[],requestedBackgrounds=new Set()
   const titles={'toulouse-chalet':'Toulouse → chalet à Ignaux','toulouse-depart':'Toulouse → départ de la rando','depart-chalet':'Rando → chalet à Ignaux'}
   const names={toulouse:'Toulouse · centre',chalet:'Ignaux · village du chalet',depart:'La Restanque · parking du topo'}
   const stagePoint={parking:'parking',foret:'pont',gue:'gue',rabassoles:'rabassoles',bleu:'bleu',noir:'noir'}
@@ -21,11 +21,13 @@
     const background=()=>{
       if(tiles)return
       if(navigator.onLine===false){U.toast('Hors ligne : le tracé et les points restent visibles.');return}
+      requestedBackgrounds.add(container.id)
       tiles=root.L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'',detectRetina:false}).addTo(map)
       let warned=false
       tiles.on('tileerror',()=>{if(!warned){warned=true;U.toast('Fond de carte indisponible. Le tracé reste affiché.')}})
     }
     const entry={map,background};live.push(entry)
+    if(requestedBackgrounds.has(container.id))background()
     return entry
   }
   function dot(map,latlon,label,text,done=false){

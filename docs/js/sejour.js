@@ -148,7 +148,7 @@
     const result=await M.refresh(root.fetch.bind(root),snapshot)
     snapshot=result;store.set('meteo.'+P.id,result);refreshing=false
     // Ne pas reconstruire une page pendant la saisie d’une note ou d’un poids.
-    if(!/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName||''))render()
+    if(['accueil','meteo','chalet'].includes(view)&&!/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName||''))render()
     if(!silent)U.toast(Object.keys(result.errors).length?'Actualisation partielle. Les copies précédentes restent datées.':'Prévisions des trois lieux actualisées.')
   }
   function credits(){
@@ -169,7 +169,7 @@
   document.querySelectorAll('[data-icone]').forEach(el=>el.append(U.svgIcon(el.dataset.icone)))
   document.getElementById('btn-secours').onclick=()=>document.getElementById('dlg-secours').showModal()
   root.addEventListener('hashchange',navigation)
-  root.addEventListener('online',()=>{if(view!=='sac'&&view!=='chalet')render()})
+  root.addEventListener('online',()=>{if(view==='accueil'||view==='meteo')render();else document.getElementById('trip-network').textContent='En ligne · carte et coches conservées.'})
   root.addEventListener('offline',()=>{document.getElementById('trip-network').textContent='Hors ligne · dernière copie disponible.'})
   document.querySelector('.trip-skip').onclick=e=>{e.preventDefault();document.getElementById('contenu').focus();document.getElementById('contenu').scrollIntoView()}
   navigation();credits();offline()
