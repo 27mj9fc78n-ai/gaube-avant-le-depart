@@ -4,7 +4,7 @@ import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs'
 import { createHash } from 'node:crypto'
 import { join, relative, extname } from 'node:path'
 
-const TEXTE = new Set(['.js', '.css', '.webmanifest'])
+const TEXTE = new Set(['.js', '.css', '.json', '.webmanifest'])
 
 function lister(dossier, base, sortie) {
   for (const nom of readdirSync(dossier)) {
@@ -17,10 +17,10 @@ function lister(dossier, base, sortie) {
 
 export function empreinte(racineDocs) {
   const fichiers = []
-  for (const d of ['css', 'js', 'icons', 'images']) if (existsSync(join(racineDocs, d))) lister(join(racineDocs, d), racineDocs, fichiers)
+  for (const d of ['css', 'js', 'icons', 'images', 'vendor']) if (existsSync(join(racineDocs, d))) lister(join(racineDocs, d), racineDocs, fichiers)
   fichiers.push('manifest.webmanifest')
   // Ces données sont servies cache d’abord : leur changement doit aussi invalider le cache.
-  for (const f of ['data/pack.js', 'data/pack-jour.js', 'data/photos-sejour.js']) if (existsSync(join(racineDocs, f))) fichiers.push(f)
+  for (const f of ['data/pack.js', 'data/pack-jour.js', 'data/photos-sejour.js', 'data/trajets.js', 'data/rando-carte.js', 'data/rando-carte.json']) if (existsSync(join(racineDocs, f))) fichiers.push(f)
   fichiers.sort()
   const h = createHash('sha256')
   for (const f of fichiers) {
